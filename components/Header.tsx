@@ -50,7 +50,7 @@ export function Header() {
             />
           </div>
             <Link
-              href="/dashboard"
+              href="/dashboardres"
               className="hidden md:flex items-center px-2 py-2 bg-purple-500 text-white rounded-full hover:bg-purple-600 transition-all duration-200 transform hover:scale-105 mr-2"
             >
               <ChefHatIcon size={18} className="mr-0" />

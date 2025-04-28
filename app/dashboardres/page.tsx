@@ -1,5 +1,5 @@
 import React from 'react'
-import DashboardLayout  from '../admin_res/DashboardLayout'
+import DashboardLayout  from '../adminres/DashboardLayout'
 import {
   BarChartIcon,
   TruckIcon,
