@@ -11,6 +11,7 @@ import {
 import NotificationModel from './ui/NotificationModel'
 import { CartModal } from './CartModal'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -25,9 +26,8 @@ export function Header() {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link 
-              href="/"
-              className="text-2xl font-bold text-purple-600 mr-2">
-              TasteBite
+              href="/">
+              <Image src="../public/images/logo.jpg" alt="Logo" width={40} height={40} className="mr-2" />
             </Link>
           </div>
           <div className="hidden md:flex items-center cursor-pointer hover:text-purple-600 transition-colors">
