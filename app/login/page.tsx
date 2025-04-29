@@ -6,28 +6,43 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { UserIcon, Lock, Mail, ChefHat, Utensils } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { fetchFromService } from '@/utils/fetchFromService'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
   const { login } = useAuth()
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
 
-    // Mock login - replace with actual API call
-    login({
-      id: 1,
-      name: 'John Doe',
-      email,
-      contact: '',
-      city: 'New York',
-      address: '',
-      type: 'user',
-    })
+    try {
+      const response = await fetchFromService("user", "/api/auth/login", "POST", {
+        username,
+        password
+      });
 
-    router.push('/')
+      // Save token to localStorage
+      localStorage.setItem('authToken', response.token);
+
+      // Update auth context with user data
+      login({
+        id: response.userId,
+        name: response.firstName,
+        email: response.email,
+        contact: response.phoneNumber,
+        city: response.city,
+        address: response.address,
+        type: "user",
+      });
+
+      router.push('/')
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please check your credentials.')
+    }
   }
 
   return (
@@ -61,23 +76,6 @@ export default function LoginPage() {
               Sign in to order delicious food from your favorite restaurants or
               manage your restaurant dashboard.
             </p>
-            
-            {/* <div className="flex space-x-4">
-              <motion.div 
-                whileHover={{ y: -5 }}
-                className="bg-white bg-opacity-20 p-4 rounded-lg backdrop-blur-sm"
-              >
-                <ChefHat size={24} />
-                <p className="mt-2 text-sm">Restaurant Owner</p>
-              </motion.div>
-              <motion.div 
-                whileHover={{ y: -5 }}
-                className="bg-white bg-opacity-20 p-4 rounded-lg backdrop-blur-sm"
-              >
-                <UserIcon size={24} />
-                <p className="mt-2 text-sm">Food Lover</p>
-              </motion.div>
-            </div> */}
           </div>
         </motion.div>
 
@@ -108,25 +106,31 @@ export default function LoginPage() {
                 Sign in to continue your culinary journey
               </p>
 
+              {error && (
+                <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-md">
+                  {error}
+                </div>
+              )}
+
               <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-white py-8 px-6 shadow-xl rounded-2xl sm:px-10 border border-gray-100">
                   <form className="space-y-6" onSubmit={handleSubmit}>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                        Email address
+                      <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                        Username
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                           <Mail size={18} className="text-gray-400" />
                         </div>
                         <input
-                          id="email"
-                          type="email"
+                          id="username"
+                          type="text"
                           required
                           className="mt-1 block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="your@email.com"
+                          value={username}
+                          onChange={(e) => setUsername(e.target.value)}
+                          placeholder="Enter your username"
                         />
                       </div>
                     </div>

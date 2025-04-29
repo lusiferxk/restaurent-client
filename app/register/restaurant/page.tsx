@@ -11,6 +11,7 @@ interface RestaurantFormData {
   address: string
   city: string
   postal: string
+  deliveryTime: number
 }
 
 export function RestaurantRegistration() {
@@ -19,6 +20,7 @@ export function RestaurantRegistration() {
     address: '',
     city: '',
     postal: '',
+    deliveryTime: 0,
   })
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -37,6 +39,7 @@ export function RestaurantRegistration() {
         address: formData.address,
         city: formData.city,
         postal: formData.postal,
+        deliveryTime: formData.deliveryTime,
         isAvailable: true,
         verifiedByAdmin: false,
         menu: []
@@ -71,7 +74,7 @@ export function RestaurantRegistration() {
         address: formData.address,
         type: 'restaurant',
       });
-      
+
       router.push('/');
     } catch (error) {
       console.error('Error registering restaurant:', error);
@@ -81,6 +84,15 @@ export function RestaurantRegistration() {
       setIsSubmitting(false);
     }
   }
+
+  const DISTRICTS = [
+    "Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya",
+    "Galle", "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar",
+    "Vavuniya", "Mullaitivu", "Batticaloa", "Ampara", "Trincomalee",
+    "Kurunegala", "Puttalam", "Anuradhapura", "Polonnaruwa", "Badulla",
+    "Moneragala", "Ratnapura", "Kegalle"
+  ];
+
 
   return (
     <motion.div
@@ -145,6 +157,7 @@ export function RestaurantRegistration() {
                   <input
                     type="text"
                     required
+                    placeholder='e.g. "The Spicy Kitchen"'
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     value={formData.name}
                     onChange={(e) =>
@@ -162,6 +175,7 @@ export function RestaurantRegistration() {
                   <input
                     type="text"
                     required
+                    placeholder='e.g. "123 Main St, City"'
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     value={formData.address}
                     onChange={(e) =>
@@ -173,21 +187,20 @@ export function RestaurantRegistration() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    City
-                  </label>
-                  <input
-                    type="text"
+                  <label className="block text-sm font-medium text-gray-700">City</label>
+                  <select
                     required
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     value={formData.city}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        city: e.target.value,
-                      })
-                    }
-                  />
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  >
+                    <option value="" disabled>Select your district</option>
+                    {DISTRICTS.map((district) => (
+                      <option key={district} value={district}>
+                        {district}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
@@ -196,6 +209,7 @@ export function RestaurantRegistration() {
                   <input
                     type="text"
                     required
+                    placeholder='e.g. "10001"'
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
                     value={formData.postal}
                     onChange={(e) =>
@@ -207,12 +221,26 @@ export function RestaurantRegistration() {
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700">Delivery Time (minutes)</label>
+                  <select
+                    required
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500"
+                    value={formData.deliveryTime}
+                    onChange={(e) => setFormData({ ...formData, deliveryTime: parseInt(e.target.value) })}
+                  >
+                    {[10, 20, 30, 45, 60, 90, 120].map((minutes) => (
+                      <option key={minutes} value={minutes}>
+                        {minutes} minutes
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                      isSubmitting ? 'bg-purple-400' : 'bg-purple-600 hover:bg-purple-700'
-                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500`}
+                    className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${isSubmitting ? 'bg-purple-400' : 'bg-purple-600 hover:bg-purple-700'
+                      } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500`}
                   >
                     {isSubmitting ? 'Registering...' : 'Register Restaurant'}
                   </button>
