@@ -37,9 +37,6 @@ export function Header() {
             <MapPinIcon size={18} className="mr-1" />
             <span className="font-medium">New York, NY</span>
           </div>
-          <div>
-            {storedUser?.username}
-          </div>
           <div className="hidden md:block relative flex-grow max-w-md mx-4">
             <input
               type="text"
@@ -63,6 +60,9 @@ export function Header() {
               onClick={() => setIsNotificationOpen(!isNotificationOpen)}
             >
               <NotificationModel />
+            </div>
+            <div className='hidden md:flex items-center text-sm'>
+              {storedUser?.username}
             </div>
             {user ? (
               <div className="relative">
