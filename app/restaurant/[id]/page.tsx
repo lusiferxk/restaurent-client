@@ -13,6 +13,7 @@ import {
 import Link from 'next/link'
 import { restaurants } from '@/components/RestaurantList'
 import { motion } from 'framer-motion'
+import HealthAdvice from '@/components/HealthAdvice'
 const menuItems = [
   {
     id: 1,

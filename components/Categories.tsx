@@ -13,8 +13,8 @@ const categories = [
 export function Categories() {
   return (
     <div className="py-10 bg-white">
-      <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold mb-6">
+      <div className="container mx-auto px-14">
+        <h2 className="text-2xl md:text-3xl text-purple-950 font-bold mb-6">
           What&apos;s on your mind?
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

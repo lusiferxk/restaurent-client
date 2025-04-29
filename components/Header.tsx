@@ -25,13 +25,13 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
       
-      <div className="container mx-auto px-4 py-2">
+      <div className="container mx-auto px-2 py-2">
         
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link 
               href="/">
-              <Image src="/images/logo.jpg" alt="Logo" width={130} height={80} className="ml-5" />
+              <Image src="/images/logo.png" alt="Logo" width={130} height={80} className="ml-5" />
             </Link>
           </div>
           <div className="hidden md:flex items-center cursor-pointer hover:text-purple-600 transition-colors">
