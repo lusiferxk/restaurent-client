@@ -25,20 +25,17 @@ export default function LoginPage() {
         password
       });
 
-      // Save token to localStorage
-      localStorage.setItem('authToken', response.token);
-
-      // Update auth context with user data
-      login({
-        id: response.userId,
-        name: response.firstName,
-        email: response.email,
-        contact: response.phoneNumber,
-        city: response.city,
-        address: response.address,
-        type: "user",
-      });
-
+      // Update auth context with user data and token
+      login(
+        {
+          id: response.id,
+          username: response.username,
+          email: response.email,
+          roles: response.roles
+        },
+        response.token
+      );      
+      
       router.push('/')
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.')
