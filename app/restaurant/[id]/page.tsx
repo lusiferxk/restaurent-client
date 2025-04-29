@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { restaurants } from '@/components/RestaurantList'
 import { motion } from 'framer-motion'
 import HealthAdvice from '@/components/HealthAdvice'
+import MealCard from '@/components/MealCard'
 const menuItems = [
   {
     id: 1,
@@ -23,6 +24,7 @@ const menuItems = [
     image:
       'https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
     category: 'Pizza',
+    ingredients: ['Tomatoes', 'Mozzarella', 'Basil', 'Olive Oil', 'Pizza Dough'],
   },
   {
     id: 2,
@@ -32,6 +34,7 @@ const menuItems = [
     image:
       'https://images.unsplash.com/photo-1628840042765-356cda07504e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
     category: 'Pizza',
+    ingredients: ['Pepperoni', 'Mozzarella', 'Tomato Sauce', 'Pizza Dough'],
   },
   {
     id: 3,
@@ -41,6 +44,7 @@ const menuItems = [
     image:
       'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
     category: 'Salads',
+    ingredients: ['Romaine Lettuce', 'Croutons', 'Parmesan', 'Caesar Dressing'],
   },
   {
     id: 4,
@@ -50,6 +54,7 @@ const menuItems = [
     image:
       'https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
     category: 'Pizza',
+    ingredients: ['Tomatoes', 'Mozzarella', 'Basil', 'Olive Oil', 'Pizza Dough'],
   }
 ]
 const categories = ['All', 'Pizza', 'Salads', 'Drinks', 'Desserts']
@@ -269,19 +274,15 @@ export default function RestaurantDetailsPage({ params }: { params: { id: string
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.07 }}
-                    whileHover={{ scale: 1.04, boxShadow: '0 4px 24px rgba(80,0,120,0.10)' }}
-                    className="bg-white rounded-xl shadow-md flex flex-col h-full hover:bg-purple-50 transition-all cursor-pointer"
                   >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-32 object-cover rounded-t-xl"
+                    <MealCard
+                      image={item.image}
+                      name={item.name}
+                      description={item.description}
+                      price={item.price}
+                      ingredients={item.ingredients}
+                      onAddToCart={() => {}}
                     />
-                    <div className="flex-1 flex flex-col p-4">
-                      <h3 className="font-semibold text-lg mb-1">{item.name}</h3>
-                      <p className="text-xs text-gray-600 mb-2 flex-1">{item.description}</p>
-                      <p className="text-purple-600 font-bold text-base mt-auto">${item.price.toFixed(2)}</p>
-                    </div>
                   </motion.div>
                 ))}
               </div>

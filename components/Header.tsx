@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import {
   MapPinIcon,
-  ShoppingBagIcon,
+  ShoppingCart,
   UserIcon,
   MenuIcon,
   SearchIcon,
@@ -60,7 +60,7 @@ export function Header() {
               className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
               onClick={() => setIsCartOpen(!isCartOpen)}
             >
-              <ShoppingBagIcon size={20} className="text-gray-700" />
+              <ShoppingCart size={20} className="text-gray-700" />
             </button>
             <div
               className="p-2 hover:bg-gray-100 rounded-full relative transition-colors duration-200"
