@@ -15,17 +15,17 @@ function RestaurantList() {
     async function loadRestaurants() {
       try {
         const data = await fetchFromService('restaurant', '/restaurants', 'GET');
-  
+
         const formatted = data.map((item: any) => ({
           id: item.id,
           name: item.name,
           image: item.image || '',
           rating: item.rating || 0,
-          deliveryTime: item.deliveryTime || '30-40 min',
-          deliveryFee: item.deliveryFee || '$0',
+          deliveryTime: item.deliveryTime ? `${item.deliveryTime}` : '0',
+          deliveryFee: item.deliveryFee ? `LKR ${item.deliveryFee}` : 'LKR 0',
           categories: item.categories || [],
         }));
-  
+
         setRestaurants(formatted);
       } catch (err: any) {
         setError(err.message || 'Failed to load restaurants.');
@@ -33,9 +33,9 @@ function RestaurantList() {
         setLoading(false);
       }
     }
-  
+
     loadRestaurants();
-  }, []);  
+  }, []);
 
   if (loading) {
     return <div className="p-10 text-center">Loading restaurants...</div>;

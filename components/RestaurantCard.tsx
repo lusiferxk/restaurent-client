@@ -30,7 +30,7 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <div className="absolute top-3 right-3 bg-white px-2 py-1 rounded-full text-sm font-medium">
-            {restaurant.deliveryTime}
+            {restaurant.deliveryTime} min
           </div>
         </div>
         <div>
@@ -60,7 +60,7 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
           </div>
           <div className="mt-1 text-sm text-gray-600 flex items-center">
             <ClockIcon size={14} className="mr-1" />
-            <span>{restaurant.deliveryTime}</span>
+            <span>{restaurant.deliveryTime} min</span>
             <span className="mx-2">•</span>
             <span>{restaurant.deliveryFee} delivery fee</span>
           </div>
