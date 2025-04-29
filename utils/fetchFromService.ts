@@ -1,10 +1,20 @@
 export async function fetchFromService(service: string, path: string, method: "GET" | "POST" = "POST", body = {}) {
+  const headers: any = {
+    'Content-Type': 'application/json',
+  };
+
+  // Get token from localStorage
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
   const response = await fetch('/api/gateway', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ service, path, method, ...body }),
+    headers,
+    body: JSON.stringify({ service, path, method, body }),
   });
 
   if (!response.ok) {
