@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 // Service registry
 const SERVICES = {
   restaurant: 'https://restaurant-service-ilaj.onrender.com',
-  // Add more services here
+  user: 'https://user-service-f124.onrender.com',
 };
 
 // Rate limiting configuration
@@ -70,11 +70,13 @@ export async function POST(request: Request) {
       const url = `${SERVICES[service as keyof typeof SERVICES]}${path}`;
       
       const headers: any = {
-        'Authorization': `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJyZXN0T3duZXIxMjMiLCJ1c2VySWQiOjMsInJvbGUiOlsiUk9MRV9SRVNUQVVSQU5UX09XTkVSIl0sImlhdCI6MTc0NTI1NDUxNCwiZXhwIjoxNzQ4ODU0NTE0LCJpc3MiOiJjcmVhdGl2ZWxrLWF1dGgifQ.n0uCBj-8wbNmQ99eGeb-6d5wj6qciwAxJD32wYqFVdU`
+        'Content-Type': 'application/json'
       };
 
-      if (['POST', 'PUT', 'PATCH'].includes(method)) {
-        headers['Content-Type'] = 'application/json';
+      // Get token from request headers
+      const authToken = request.headers.get('Authorization');
+      if (authToken) {
+        headers['Authorization'] = authToken;
       }
 
       const fetchOptions: RequestInit = {
