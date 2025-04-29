@@ -25,7 +25,8 @@ export default function NotificationModel() {
   const [expandedNotificationId, setExpandedNotificationId] = useState<number | null>(null);
   const stompClient = useRef<Client | null>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
-  const currentUserId = 123;
+  const currentUserId = 1;
+  const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYWNoaW5pMTIzIiwidXNlcklkIjoxLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpYXQiOjE3NDUyNTM0OTMsImV4cCI6MTc0ODg1MzQ5MywiaXNzIjoiY3JlYXRpdmVsay1hdXRoIn0.lljkZFZciKLpY_dWHUNS29GZf1Z_bbp1z0QbN7OBC-o";
 
   // Click outside handler
   useEffect(() => {
@@ -44,16 +45,14 @@ export default function NotificationModel() {
 
   const filteredNotifications = notifications.filter(notification => {
     if (activeTab === 'orders') return notification.type === 'order';
-    if (activeTab === 'promotions') return notification.type !== 'order';
+    if (activeTab === 'promotions') return notification.type === 'promotion';
     return true;
   });
 
-  const formatNotificationDate = (dateString?: string) => {
-    if (!dateString) return '--:-- --';
-    
+  const formatNotificationDate = (dateString: string) => {
     try {
       const isoString = dateString.includes(' ') 
-        ? dateString.replace(' ', 'T')
+        ? dateString.replace(' ', 'T') + 'Z'
         : dateString;
       return format(parseISO(isoString), 'h:mm a').toLowerCase();
     } catch (error) {
@@ -66,7 +65,11 @@ export default function NotificationModel() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8080/notifications');
+      const response = await fetch('http://localhost:8080/notifications', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       
       const data: Notification[] = await response.json();
@@ -82,51 +85,76 @@ export default function NotificationModel() {
   };
 
   useEffect(() => {
-    console.log('Initializing WebSocket connection...');
-    
     const client = new Client({
-        webSocketFactory: () => {
-            console.log('Creating SockJS connection...');
-            return new SockJS('http://localhost:8080/ws');
-        },
-        reconnectDelay: 5000,
-        onConnect: () => {
-            console.log('WebSocket connected! Subscribing...');
-            
-            const subscription = client.subscribe(
-                `/user/${currentUserId}/queue/notifications`,
-                (message) => {
-                    console.log('RAW MESSAGE RECEIVED:', message);
-                    const newNotification: Notification = JSON.parse(message.body);
-                    console.log('PARSED NOTIFICATION:', newNotification);
-                    setNotifications(prev => [newNotification, ...prev]);
-                    setUnreadCount(prev => prev + 1);
-                }
-            );
-            
-            console.log('Subscription details:', subscription);
-        },
-        onDisconnect: () => console.log('WebSocket disconnected'),
-        onWebSocketError: (error) => console.error('WebSocket error:', error),
-        onStompError: (frame) => console.error('STOMP error:', frame)
+      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
+        'heart-beat': '10000,10000'
+      },
+      heartbeatIncoming: 10000,
+      heartbeatOutgoing: 10000,
+      reconnectDelay: 5000,
+      debug: (str) => console.log('STOMP:', str),
+      
+      onConnect: () => {
+        const subscription = client.subscribe(
+          `/user/${currentUserId}/queue/notifications`,
+          (message) => {
+            try {
+              const newNotification: Notification = JSON.parse(message.body);
+              console.log('Received notification:', newNotification);
+              
+              // Ensure the notification has a type (default to 'order' if not specified)
+              const processedNotification = {
+                ...newNotification,
+                type: newNotification.type || 'order'
+              };
+              
+              setNotifications(prev => [processedNotification, ...prev]);
+              
+              // Update unread count if the notification is unread
+              if (!processedNotification.read) {
+                setUnreadCount(prev => prev + 1);
+              }
+            } catch (error) {
+              console.error('Error processing message:', error);
+            }
+          },
+          { Authorization: `Bearer ${token}` }
+        );
+      },
+      
+      onStompError: (frame) => {
+        console.error('STOMP error:', frame.headers?.message);
+      },
+      
+      onWebSocketError: (error) => {
+        console.error('WebSocket error:', error);
+      }
     });
 
     stompClient.current = client;
     client.activate();
 
     return () => {
-        console.log('Cleaning up WebSocket...');
-        client.deactivate();
+      client.deactivate();
     };
-  }, [currentUserId]);
+  }, [token, currentUserId]);
 
   const markAsRead = async (id: number) => {
     try {
-      await fetch(`http://localhost:8080/notifications/read?id=${id}`, { method: 'PUT' });
-      setNotifications(prev => prev.map(n => n.id === id ? {...n, read: true} : n));
+      await fetch(`http://localhost:8080/notifications/${id}/read`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setNotifications(prev => prev.map(n => 
+        n.id === id ? {...n, read: true} : n
+      ));
       setUnreadCount(prev => prev - 1);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error marking as read:', error);
     }
   };
 
@@ -137,16 +165,38 @@ export default function NotificationModel() {
     setExpandedNotificationId(expandedNotificationId === notification.id ? null : notification.id);
   };
 
+  const markAllAsRead = async () => {
+    try {
+      await fetch(`http://localhost:8080/notifications/read-all`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setNotifications(prev => prev.map(n => ({...n, read: true})));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
+  };
+
   const deleteNotification = async (id: number) => {
     try {
-      await fetch(`http://localhost:8080/notifications/delete?id=${id}`, { method: 'DELETE' });
+      await fetch(`http://localhost:8080/notifications/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setNotifications(prev => prev.filter(n => n.id !== id));
-      setUnreadCount(prev => notifications.find(n => n.id === id)?.read ? prev : prev - 1);
+      setUnreadCount(prev => 
+        notifications.find(n => n.id === id)?.read ? prev : prev - 1
+      );
       if (expandedNotificationId === id) {
         setExpandedNotificationId(null);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error deleting notification:', error);
     }
   };
 
@@ -155,11 +205,15 @@ export default function NotificationModel() {
       stompClient.current.publish({
         destination: '/app/sendNotification',
         body: JSON.stringify({
+          title: 'Test Order Notification',
+          message: 'This is a test order message',
+          type: 'order',
           userId: currentUserId,
-          title: 'Test Notification with a very long title that should be truncated when collapsed',
-          message: 'This is a test message with more details that would be shown when expanded. It contains additional information that the user might want to see when they click on the notification. The message can be quite long and should be properly displayed when expanded.',
-          type: 'order'
-        })
+          email: 'test@example.com'
+        }),
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
     }
   };
