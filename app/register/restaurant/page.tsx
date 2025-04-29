@@ -6,29 +6,80 @@ import { useAuth } from '@/contexts/AuthContext'
 import { UtensilsIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 
+interface RestaurantFormData {
+  name: string
+  address: string
+  city: string
+  postal: string
+}
+
 export function RestaurantRegistration() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RestaurantFormData>({
     name: '',
     address: '',
     city: '',
     postal: '',
   })
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
   const { login } = useAuth()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Mock registration - replace with actual API call
-    login({
-      id: 3,
-      name: formData.name,
-      email: '',
-      contact: '',
-      city: formData.city,
-      address: formData.address,
-      type: 'restaurant',
-    })
-    router.push('/')
+    setError(null)
+    setIsSubmitting(true)
+
+    try {
+      const requestBody = {
+        userId: 3,
+        name: formData.name,
+        address: formData.address,
+        city: formData.city,
+        postal: formData.postal,
+        isAvailable: true,
+        verifiedByAdmin: false,
+        menu: []
+      };
+
+      const response = await fetch('/api/gateway', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          service: 'restaurant',
+          path: '/restaurants',
+          ...requestBody
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to register restaurant');
+      }
+
+      const data = await response.json();
+
+      // Update auth context with the new restaurant data
+      login({
+        id: 3,
+        name: formData.name,
+        email: '',
+        contact: '',
+        city: formData.city,
+        address: formData.address,
+        type: 'restaurant',
+      });
+      
+      router.push('/');
+    } catch (error) {
+      console.error('Error registering restaurant:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to register restaurant. Please try again.';
+      setError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -81,6 +132,11 @@ export function RestaurantRegistration() {
               transition={{ delay: 0.5 }}
               className="bg-white shadow rounded-lg p-8"
             >
+              {error && (
+                <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md">
+                  {error}
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
@@ -153,9 +209,12 @@ export function RestaurantRegistration() {
                 <div>
                   <button
                     type="submit"
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                    disabled={isSubmitting}
+                    className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                      isSubmitting ? 'bg-purple-400' : 'bg-purple-600 hover:bg-purple-700'
+                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500`}
                   >
-                    Register Restaurant
+                    {isSubmitting ? 'Registering...' : 'Register Restaurant'}
                   </button>
                 </div>
               </form>

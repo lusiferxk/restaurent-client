@@ -264,7 +264,7 @@ export default function NotificationModel() {
                     setActiveTab('all');
                   }}
                   className={`px-3 py-1 text-xs rounded-md transition-all ${
-                    activeTab === 'all' ? 'bg-white shadow-sm text-blue-600 font-medium' : 'text-gray-500 hover:text-gray-700'
+                    activeTab === 'all' ? 'bg-white shadow-sm text-purple-600 font-medium' : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   All
@@ -275,7 +275,7 @@ export default function NotificationModel() {
                     setActiveTab('orders');
                   }}
                   className={`px-3 py-1 text-xs rounded-md transition-all ${
-                    activeTab === 'orders' ? 'bg-white shadow-sm text-blue-600 font-medium' : 'text-gray-500 hover:text-gray-700'
+                    activeTab === 'orders' ? 'bg-white shadow-sm text-purple-600 font-medium' : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   Orders
@@ -286,7 +286,7 @@ export default function NotificationModel() {
                     setActiveTab('promotions');
                   }}
                   className={`px-3 py-1 text-xs rounded-md transition-all ${
-                    activeTab === 'promotions' ? 'bg-white shadow-sm text-blue-600 font-medium' : 'text-gray-500 hover:text-gray-700'
+                    activeTab === 'promotions' ? 'bg-white shadow-sm text-purple-600 font-medium' : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   Promotions
@@ -303,7 +303,7 @@ export default function NotificationModel() {
                   <motion.div 
                     animate={{ rotate: 360 }}
                     transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                    className="rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"
+                    className="rounded-full h-8 w-8 border-2 border-purple-500 border-t-transparent"
                   ></motion.div>
                   <p className="mt-3 text-gray-500">Loading notifications...</p>
                 </motion.div>
@@ -461,7 +461,7 @@ export default function NotificationModel() {
                   fetchNotifications();
                 }}
                 disabled={isLoading}
-                className="text-sm text-blue-600 hover:text-blue-700 px-3 py-1.5 rounded-full hover:bg-blue-100 transition-colors flex items-center space-x-1"
+                className="text-sm text-purple-600 hover:text-purple-700 px-3 py-1.5 rounded-full hover:bg-purple-100 transition-colors flex items-center space-x-1"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
