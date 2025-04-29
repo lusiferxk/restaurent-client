@@ -16,13 +16,24 @@ interface Notification {
   type?: 'order' | 'promotion';
 }
 
+interface OrderNotification {
+  userId: number;
+  title: string;
+  message: string;
+  type?: 'order' | 'promotion';
+  email?: string;
+  timestamp?: string;
+}
+
 interface CustomJwtPayload {
   userId: number;
   [key: string]: any;
 }
 
 export default function NotificationModel() {
+  const token = localStorage.getItem("authToken");
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [orderNotifications, setOrderNotifications] = useState<OrderNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,22 +43,17 @@ export default function NotificationModel() {
   const stompClient = useRef<Client | null>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
   const [currentUserId, setUserId] = useState<number | null>(null);
-  const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYWNoaW5pMTIzIiwidXNlcklkIjoxLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpYXQiOjE3NDUyNTM0OTMsImV4cCI6MTc0ODg1MzQ5MywiaXNzIjoiY3JlYXRpdmVsay1hdXRoIn0.lljkZFZciKLpY_dWHUNS29GZf1Z_bbp1z0QbN7OBC-o";
-  const token_ = localStorage.getItem("authToken")
 
-
-  // Token extraction logic
-  useEffect(() => { 
-    if (!token) return;
-    
-    const decodedToken = jwtDecode<CustomJwtPayload>(token);
-    const currentUserId = decodedToken.userId;
-    setUserId(currentUserId);
-    console.log("Auto-extracted userId:", currentUserId);
-    
-    fetchNotifications();
+  useEffect(() => {
+    if (token) {
+      try {
+        const decodedToken = jwtDecode<CustomJwtPayload>(token);
+        setUserId(decodedToken.userId);
+      } catch (error) {
+        console.error('Invalid token:', error);
+      }
+    }
   }, [token]);
-
 
   // Close notifications on outside click
   useEffect(() => {
@@ -64,17 +70,32 @@ export default function NotificationModel() {
     };
   }, []);
 
+  // Combine both notification sources
+  const allNotifications = [
+    ...notifications,
+    ...orderNotifications.map((notification, index) => ({
+      id: Date.now() + index, // Temporary ID for WS notifications
+      userId: notification.userId,
+      title: notification.title,
+      message: notification.message,
+      type: notification.type || 'order',
+      read: false,
+      timestamp: notification.timestamp || new Date().toISOString()
+    }))
+  ];
 
   // Filter notifications based on active tab
-  const filteredNotifications = notifications.filter(notification => {
+  const filteredNotifications = allNotifications.filter(notification => {
+    if (!currentUserId) return false;
+    if (notification.userId !== currentUserId) return false;
     if (activeTab === 'orders') return notification.type === 'order';
     if (activeTab === 'promotions') return notification.type === 'promotion';
     return true;
   });
 
-
-  // Format notification date
-  const formatNotificationDate = (dateString: string) => {
+  // Format notification date with safety checks
+  const formatNotificationDate = (dateString?: string) => {
+    if (!dateString) return '--:-- --';
     try {
       const isoString = dateString.includes(' ') 
         ? dateString.replace(' ', 'T') + 'Z'
@@ -86,8 +107,7 @@ export default function NotificationModel() {
     }
   };
 
-
-  // Fetch notifications from the server
+  // Fetch REST API notifications
   const fetchNotifications = async () => {
     if (!token) return;
 
@@ -95,16 +115,13 @@ export default function NotificationModel() {
     setError(null);
     try {
       const response = await fetch('http://localhost:8080/notifications', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       
       const data: Notification[] = await response.json();
-      const userNotifications = data.filter(n => n.userId === currentUserId);
-      setNotifications(userNotifications);
-      setUnreadCount(userNotifications.filter(n => !n.read).length);
+      setNotifications(data);
+      setUnreadCount(data.filter(n => !n.read).length);
     } catch (error) {
       console.error('Error:', error);
       setError('Failed to load notifications');
@@ -113,10 +130,9 @@ export default function NotificationModel() {
     }
   };
 
-
   // WebSocket connection and subscription
   useEffect(() => {
-    if (!token) return;
+    if (!token || !currentUserId) return;
   
     const client = new Client({
       webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
@@ -127,15 +143,19 @@ export default function NotificationModel() {
       debug: (str) => console.log('STOMP:', str),
       
       onConnect: () => {
-        const subscription = client.subscribe(
-          `/user/${currentUserId}/queue/notifications`,
+        client.subscribe(
+          '/user/queue/notifications',
           (message) => {
             try {
-              const newNotification = JSON.parse(message.body);
-              console.log('Received notification:', newNotification);
-              setNotifications(prev => [...prev, newNotification]);
+              const newNotification: OrderNotification = JSON.parse(message.body);
+              console.log('Received WebSocket notification:', newNotification);
+              setOrderNotifications(prev => [...prev, {
+                ...newNotification,
+                timestamp: new Date().toISOString()
+              }]);
+              setUnreadCount(prev => prev + 1);
             } catch (error) {
-              console.error('Failed to parse message:', error);
+              console.error('Failed to parse WebSocket message:', error);
             }
           },
           { Authorization: `Bearer ${token}` }
@@ -146,13 +166,16 @@ export default function NotificationModel() {
         console.error('STOMP error:', frame.headers?.message);
       }
     });
-  
+    
+    stompClient.current = client;
     client.activate();
     return () => {
-      client.deactivate();
+      if (stompClient.current) {
+        stompClient.current.deactivate();
+        stompClient.current = null;
+      }
     };
-  }, [token]);
-
+  }, [token, currentUserId]);
 
   // Mark notification as read
   const markAsRead = async (id: number) => {
@@ -172,15 +195,13 @@ export default function NotificationModel() {
     }
   };
 
-
   // Handle notification click
   const handleNotificationClick = async (notification: Notification) => {
-    if (!notification.read) {
+    if (!notification.read && notification.id) {
       await markAsRead(notification.id);
     }
     setExpandedNotificationId(expandedNotificationId === notification.id ? null : notification.id);
   };
-
 
   // Mark all notifications as read
   const markAllAsRead = async () => {
@@ -197,7 +218,6 @@ export default function NotificationModel() {
       console.error('Error marking all as read:', error);
     }
   };
-
 
   // Delete notification
   const deleteNotification = async (id: number) => {
@@ -220,9 +240,7 @@ export default function NotificationModel() {
     }
   };
 
-
   // Send test notification (for testing purposes)
-  // This function is for testing purposes only and should be removed in production
   const sendTestNotification = () => {
     if (stompClient.current?.connected) {
       stompClient.current.publish({
@@ -232,7 +250,7 @@ export default function NotificationModel() {
           message: 'This is a test order message',
           type: 'order',
           userId: currentUserId,
-          email: 'test@example.com'
+          email: 'sudaraka731@gmail.com'
         }),
         headers: {
           Authorization: `Bearer ${token}`
@@ -241,8 +259,6 @@ export default function NotificationModel() {
     }
   };
 
-
-  
   return (
     <div className="relative" ref={notificationRef}>
       <button 
@@ -399,8 +415,6 @@ export default function NotificationModel() {
                               </div>
                             </div>
                             
-                            
-
                             <AnimatePresence>
                               <motion.div
                                 initial={{ opacity: 0, height: 0 }}
@@ -458,18 +472,20 @@ export default function NotificationModel() {
                             </div>
                           </div>
                           <div className="flex space-x-1 ml-2">
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteNotification(notification.id);
-                              }}
-                              className="p-1.5 rounded-full hover:bg-red-50 text-gray-500 hover:text-red-500 transition-colors group"
-                              title="Delete"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
+                            {notification.id && ( // Only show delete for REST notifications
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteNotification(notification.id!);
+                                }}
+                                className="p-1.5 rounded-full hover:bg-red-50 text-gray-500 hover:text-red-500 transition-colors group"
+                                title="Delete"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -491,7 +507,6 @@ export default function NotificationModel() {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                {/* <span>Refresh</span> */}
               </button>
               <div className="flex space-x-2">
                 <span className="inline-flex items-center space-x-2 text-sm text-blue-500 hover:text-gray-800 px-3 py-1.5 rounded-full hover:bg-gray-200 transition-colors">
@@ -514,8 +529,7 @@ export default function NotificationModel() {
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
-                      Promise.all(unreadIds.map(markAsRead));
+                      markAllAsRead();
                     }}
                     className=""
                   >
