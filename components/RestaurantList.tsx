@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from 'react'
 import { RestaurantCard, Restaurant } from './RestaurantCard'
-const restaurants: Restaurant[] = [
+
+export const restaurants: Restaurant[] = [
   {
     id: 1,
     name: 'Pizza Paradise',

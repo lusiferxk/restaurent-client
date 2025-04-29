@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { XIcon, StarIcon, ClockIcon } from 'lucide-react'
 import type { Restaurant } from './RestaurantCard'
+import { useRouter } from 'next/navigation'
+
 interface MenuItem {
   id: number
   name: string
@@ -10,11 +12,13 @@ interface MenuItem {
   image: string
   category: string
 }
+
 interface RestaurantDetailsModalProps {
   restaurant: Restaurant
   isOpen: boolean
   onClose: () => void
 }
+
 const menuItems: MenuItem[] = [
   {
     id: 1,
@@ -44,45 +48,39 @@ const menuItems: MenuItem[] = [
     category: 'Salads',
   },
 ]
+
 const categories = ['All', 'Pizza', 'Salads', 'Drinks', 'Desserts']
+
 export function RestaurantDetailsModal({
   restaurant,
   isOpen,
   onClose,
 }: RestaurantDetailsModalProps) {
   const [activeCategory, setActiveCategory] = useState('All')
+  const router = useRouter()
+
+  const handleExpand = () => {
+    onClose()
+    router.push(`/restaurant/${restaurant.id}`)
+  }
+
   return (
     <AnimatePresence>
       {isOpen && (
         <>
           {/* Backdrop */}
           <motion.div
-            initial={{
-              opacity: 0,
-            }}
-            animate={{
-              opacity: 1,
-            }}
-            exit={{
-              opacity: 0,
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={onClose}
             className="fixed inset-0 bg-black/60 z-50"
           />
           {/* Modal */}
           <motion.div
-            initial={{
-              opacity: 0,
-              y: 50,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            exit={{
-              opacity: 0,
-              y: 50,
-            }}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
             className="fixed inset-x-0 bottom-0 z-50 h-[90vh] max-w-3xl mx-auto bg-white rounded-t-3xl overflow-hidden"
           >
             {/* Header Image */}
@@ -100,8 +98,18 @@ export function RestaurantDetailsModal({
               </button>
             </div>
             {/* Content */}
-            <div className="p-6">
-              <h2 className="text-2xl font-bold">{restaurant.name}</h2>
+            <div className="px-8 py-6">
+              {/* Header Row */}
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-2xl font-bold">{restaurant.name}</h2>
+                <button
+                  onClick={handleExpand}
+                  className="text-purple-600 hover:underline text-base font-medium focus:outline-none"
+                  style={{ minWidth: 0 }}
+                >
+                  View full page
+                </button>
+              </div>
               <div className="flex items-center mt-2 text-sm text-gray-600">
                 <div className="flex items-center">
                   <StarIcon
@@ -133,33 +141,25 @@ export function RestaurantDetailsModal({
                   ))}
                 </div>
               </div>
-              {/* Menu Items */}
-              <div className="space-y-6 overflow-y-auto max-h-[calc(90vh-400px)]">
-                {menuItems.map((item) => (
+              {/* Menu Items Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 overflow-y-auto max-h-[calc(90vh-400px)]">
+                {menuItems.map((item, idx) => (
                   <motion.div
                     key={item.id}
-                    initial={{
-                      opacity: 0,
-                    }}
-                    animate={{
-                      opacity: 1,
-                    }}
-                    className="flex space-x-4 p-4 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.07 }}
+                    whileHover={{ scale: 1.04, boxShadow: '0 4px 24px rgba(80,0,120,0.10)' }}
+                    className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center hover:bg-purple-50 transition-all cursor-pointer"
                   >
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="w-24 h-24 rounded-lg object-cover"
+                      className="w-20 h-20 rounded-lg object-cover mb-3 shadow"
                     />
-                    <div className="flex-1">
-                      <h3 className="font-medium">{item.name}</h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {item.description}
-                      </p>
-                      <p className="text-purple-600 font-medium mt-2">
-                        ${item.price.toFixed(2)}
-                      </p>
-                    </div>
+                    <h3 className="font-semibold text-center mb-1">{item.name}</h3>
+                    <p className="text-xs text-gray-600 text-center mb-2">{item.description}</p>
+                    <p className="text-purple-600 font-bold text-base">${item.price.toFixed(2)}</p>
                   </motion.div>
                 ))}
               </div>
@@ -170,3 +170,5 @@ export function RestaurantDetailsModal({
     </AnimatePresence>
   )
 }
+
+export default RestaurantDetailsModal
