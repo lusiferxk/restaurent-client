@@ -25,7 +25,7 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
       >
         <div className="relative rounded-lg overflow-hidden aspect-video mb-3">
           <img
-            src={restaurant.image}
+            src={restaurant.image || 'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png'}
             alt={restaurant.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
