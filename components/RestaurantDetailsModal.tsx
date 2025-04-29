@@ -47,6 +47,15 @@ const menuItems: MenuItem[] = [
       'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
     category: 'Salads',
   },
+  {
+    id: 1,
+    name: 'Margherita Pizza',
+    description: 'Fresh tomatoes, mozzarella, basil, and olive oil',
+    price: 14.99,
+    image:
+      'https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+    category: 'Pizza',
+  }
 ]
 
 const categories = ['All', 'Pizza', 'Salads', 'Drinks', 'Desserts']
