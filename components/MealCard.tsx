@@ -1,5 +1,6 @@
 import React from 'react'
 import { ShoppingCart } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface MealCardProps {
   image: string
@@ -8,9 +9,28 @@ interface MealCardProps {
   price: number
   ingredients?: string[]
   onAddToCart?: () => void
+  restaurantName?: string
+  restaurantRating?: number
+  distance?: string
+  deliveryTime?: string
 }
 
-const MealCard: React.FC<MealCardProps> = ({ image, name, description, price, ingredients, onAddToCart }) => {
+const MealCard: React.FC<MealCardProps> = ({ image, name, description, price, ingredients, onAddToCart, restaurantName, restaurantRating, distance, deliveryTime }) => {
+  const router = useRouter();
+  const handleCheckout = () => {
+    const params = new URLSearchParams({
+      image,
+      name,
+      description,
+      price: price.toString(),
+      ingredients: ingredients?.join(',') || '',
+      restaurant: restaurantName || '',
+      rating: restaurantRating?.toString() || '',
+      distance: distance || '',
+      deliveryTime: deliveryTime || ''
+    });
+    router.push(`/checkout?${params.toString()}`);
+  };
   return (
     <div className="bg-white rounded-xl shadow-md flex flex-col h-full hover:bg-purple-50 transition-all cursor-pointer border border-gray-100 relative">
       {/* Cart icon top right */}
@@ -41,7 +61,7 @@ const MealCard: React.FC<MealCardProps> = ({ image, name, description, price, in
         <p className="text-purple-600 font-bold text-base mb-4">${price.toFixed(2)}</p>
         <button
           className="w-full mt-auto bg-purple-600 text-white py-2 rounded-full font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
-          onClick={onAddToCart}
+          onClick={handleCheckout}
         >
           <ShoppingCart size={18} />
           Checkout

@@ -281,7 +281,10 @@ export default function RestaurantDetailsPage({ params }: { params: { id: string
                       description={item.description}
                       price={item.price}
                       ingredients={item.ingredients}
-                      onAddToCart={() => {}}
+                      restaurantName={restaurant.name}
+                      restaurantRating={restaurant.rating}
+                      deliveryTime={restaurant.deliveryTime}
+                      distance={"1.2 km"}
                     />
                   </motion.div>
                 ))}

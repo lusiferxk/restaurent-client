@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function HealthAdvice() {
   return (
-    <div className="bg-white py-16">
+    <div className="bg-white py-6">
       <div className="container mx-auto px-64 flex flex-col md:flex-row items-center justify-between gap-2">
         {/* Left: Plate image and floating food */}
         <div className="relative w-full md:w-1/2 flex justify-center">
@@ -30,7 +30,7 @@ export default function HealthAdvice() {
           <p className="text-purple-600 mb-8 max-w-md">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,adipiscing. Organic Delicious Fruits.
           </p>
-          <button className="px-8 py-3 bg-purple-500 text-white rounded-full font-medium hover:bg-green-600 transition-colors">
+          <button className="px-8 py-3 bg-purple-500 text-white rounded-full font-medium hover:bg-purple-600 transition-colors">
             LEARN MORE
           </button>
         </div>
