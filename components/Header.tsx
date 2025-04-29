@@ -13,21 +13,22 @@ import { CartModal } from './CartModal'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
+
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const { user, logout } = useAuth()
-
+  const storedUser = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
-      
+
       <div className="container mx-auto px-4 py-2">
-        
+
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Link 
+            <Link
               href="/">
               <Image src="/images/logo.jpg" alt="Logo" width={130} height={80} className="ml-5" />
             </Link>
@@ -35,6 +36,9 @@ export function Header() {
           <div className="hidden md:flex items-center cursor-pointer hover:text-purple-600 transition-colors">
             <MapPinIcon size={18} className="mr-1" />
             <span className="font-medium">New York, NY</span>
+          </div>
+          <div>
+            {storedUser?.username}
           </div>
           <div className="hidden md:block relative flex-grow max-w-md mx-4">
             <input
@@ -58,7 +62,7 @@ export function Header() {
               className="p-2 hover:bg-gray-100 rounded-full relative transition-colors duration-200"
               onClick={() => setIsNotificationOpen(!isNotificationOpen)}
             >
-              <NotificationModel/>
+              <NotificationModel />
             </div>
             {user ? (
               <div className="relative">
