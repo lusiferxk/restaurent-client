@@ -42,18 +42,24 @@ export function RestaurantRegistration() {
         menu: []
       };
 
-      const response = await fetch('/api/proxy', {
+      const response = await fetch('/api/gateway', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify({
+          service: 'restaurant',
+          path: '/restaurants',
+          ...requestBody
+        })
       });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to register restaurant');
       }
+
+      const data = await response.json();
 
       // Update auth context with the new restaurant data
       login({
