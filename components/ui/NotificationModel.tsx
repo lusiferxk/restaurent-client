@@ -3,16 +3,22 @@ import { useEffect, useState, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { format, parseISO } from 'date-fns';
+import { jwtDecode } from 'jwt-decode';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Notification {
   id: number;
-  userId: string;
+  userId: number;
   title: string;
   message: string;
   read: boolean;
   timestamp: string;
   type?: 'order' | 'promotion';
+}
+
+interface CustomJwtPayload {
+  userId: number;
+  [key: string]: any;
 }
 
 export default function NotificationModel() {
@@ -25,10 +31,25 @@ export default function NotificationModel() {
   const [expandedNotificationId, setExpandedNotificationId] = useState<number | null>(null);
   const stompClient = useRef<Client | null>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
-  const currentUserId = 1;
+  const [currentUserId, setUserId] = useState<number | null>(null);
   const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYWNoaW5pMTIzIiwidXNlcklkIjoxLCJyb2xlIjpbIlJPTEVfVVNFUiJdLCJpYXQiOjE3NDUyNTM0OTMsImV4cCI6MTc0ODg1MzQ5MywiaXNzIjoiY3JlYXRpdmVsay1hdXRoIn0.lljkZFZciKLpY_dWHUNS29GZf1Z_bbp1z0QbN7OBC-o";
+  const token_ = localStorage.getItem("authToken")
 
-  // Click outside handler
+
+  // Token extraction logic
+  useEffect(() => { 
+    if (!token) return;
+    
+    const decodedToken = jwtDecode<CustomJwtPayload>(token);
+    const currentUserId = decodedToken.userId;
+    setUserId(currentUserId);
+    console.log("Auto-extracted userId:", currentUserId);
+    
+    fetchNotifications();
+  }, [token]);
+
+
+  // Close notifications on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
@@ -43,12 +64,16 @@ export default function NotificationModel() {
     };
   }, []);
 
+
+  // Filter notifications based on active tab
   const filteredNotifications = notifications.filter(notification => {
     if (activeTab === 'orders') return notification.type === 'order';
     if (activeTab === 'promotions') return notification.type === 'promotion';
     return true;
   });
 
+
+  // Format notification date
   const formatNotificationDate = (dateString: string) => {
     try {
       const isoString = dateString.includes(' ') 
@@ -61,7 +86,11 @@ export default function NotificationModel() {
     }
   };
 
+
+  // Fetch notifications from the server
   const fetchNotifications = async () => {
+    if (!token) return;
+
     setIsLoading(true);
     setError(null);
     try {
@@ -84,16 +113,17 @@ export default function NotificationModel() {
     }
   };
 
+
+  // WebSocket connection and subscription
   useEffect(() => {
+    if (!token) return;
+  
     const client = new Client({
       webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
       connectHeaders: {
         Authorization: `Bearer ${token}`,
         'heart-beat': '10000,10000'
       },
-      heartbeatIncoming: 10000,
-      heartbeatOutgoing: 10000,
-      reconnectDelay: 5000,
       debug: (str) => console.log('STOMP:', str),
       
       onConnect: () => {
@@ -101,23 +131,11 @@ export default function NotificationModel() {
           `/user/${currentUserId}/queue/notifications`,
           (message) => {
             try {
-              const newNotification: Notification = JSON.parse(message.body);
+              const newNotification = JSON.parse(message.body);
               console.log('Received notification:', newNotification);
-              
-              // Ensure the notification has a type (default to 'order' if not specified)
-              const processedNotification = {
-                ...newNotification,
-                type: newNotification.type || 'order'
-              };
-              
-              setNotifications(prev => [processedNotification, ...prev]);
-              
-              // Update unread count if the notification is unread
-              if (!processedNotification.read) {
-                setUnreadCount(prev => prev + 1);
-              }
+              setNotifications(prev => [...prev, newNotification]);
             } catch (error) {
-              console.error('Error processing message:', error);
+              console.error('Failed to parse message:', error);
             }
           },
           { Authorization: `Bearer ${token}` }
@@ -126,21 +144,17 @@ export default function NotificationModel() {
       
       onStompError: (frame) => {
         console.error('STOMP error:', frame.headers?.message);
-      },
-      
-      onWebSocketError: (error) => {
-        console.error('WebSocket error:', error);
       }
     });
-
-    stompClient.current = client;
+  
     client.activate();
-
     return () => {
       client.deactivate();
     };
-  }, [token, currentUserId]);
+  }, [token]);
 
+
+  // Mark notification as read
   const markAsRead = async (id: number) => {
     try {
       await fetch(`http://localhost:8080/notifications/${id}/read`, {
@@ -158,6 +172,8 @@ export default function NotificationModel() {
     }
   };
 
+
+  // Handle notification click
   const handleNotificationClick = async (notification: Notification) => {
     if (!notification.read) {
       await markAsRead(notification.id);
@@ -165,6 +181,8 @@ export default function NotificationModel() {
     setExpandedNotificationId(expandedNotificationId === notification.id ? null : notification.id);
   };
 
+
+  // Mark all notifications as read
   const markAllAsRead = async () => {
     try {
       await fetch(`http://localhost:8080/notifications/read-all`, {
@@ -180,6 +198,8 @@ export default function NotificationModel() {
     }
   };
 
+
+  // Delete notification
   const deleteNotification = async (id: number) => {
     try {
       await fetch(`http://localhost:8080/notifications/${id}`, {
@@ -200,6 +220,9 @@ export default function NotificationModel() {
     }
   };
 
+
+  // Send test notification (for testing purposes)
+  // This function is for testing purposes only and should be removed in production
   const sendTestNotification = () => {
     if (stompClient.current?.connected) {
       stompClient.current.publish({
@@ -218,6 +241,8 @@ export default function NotificationModel() {
     }
   };
 
+
+  
   return (
     <div className="relative" ref={notificationRef}>
       <button 
