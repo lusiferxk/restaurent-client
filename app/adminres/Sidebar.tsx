@@ -28,23 +28,14 @@ import {
         {
           name: 'Add Menu Item',
           icon: <PlusCircleIcon size={18} />,
-          path: '/restaurant/menu/add',
+          path: '/restaurant/add-menu-item',
         },
         {
           name: 'View All Items',
           icon: <ListIcon size={18} />,
-          path: '/restaurant/menu/all',
+          path: '/restaurant/view-all-menu-items',
         },
-        {
-          name: 'Update Items',
-          icon: <PencilIcon size={18} />,
-          path: '/restaurant/menu/update',
-        },
-        {
-          name: 'Delete Items',
-          icon: <TrashIcon size={18} />,
-          path: '/restaurant/menu/delete',
-        },
+       
       ],
     },
     {
@@ -131,7 +122,7 @@ import {
       <div className="flex items-center">
             <Link 
               href="/">
-              <Image src="/images/logo.jpg" alt="Logo" width={130} height={80} className="ml-5 mb-4" />
+              <Image src="/images/logo.png" alt="Logo" width={130} height={80} className="ml-5 mb-4" />
             </Link>
           </div>
         <div className="flex items-center space-x-2">
