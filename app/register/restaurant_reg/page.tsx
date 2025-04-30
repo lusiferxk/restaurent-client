@@ -49,43 +49,47 @@ export function RestaurantRegistration() {
   const { login } = useAuth()
 
   const handleOwnerSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsSubmitting(true)
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
 
     try {
-      const response = await fetchFromService('user', '/api/auth/signup/restaurantowner', 'POST', {
-        username: ownerFormData.username,
-        password: ownerFormData.password,
-        email: ownerFormData.email,
-        firstName: ownerFormData.firstName,
-        lastName: ownerFormData.lastName,
-        phoneNumber: ownerFormData.phoneNumber
-      })
-      
-      // Save owner credentials and update form data with id
-      setOwnerFormData(prev => ({ ...prev, id: response.id }))
-      
-      // Save token to localStorage
-      localStorage.setItem('authToken', response.token)
-      
-      // Update auth context
-      login({
-        id: response.id,
-        username: response.username,
-        email: response.email,
-        roles: ['ROLE_RESTAURANT_OWNER']
-      }, response.token)
+      const { username, password, email, firstName, lastName, phoneNumber } = ownerFormData;
 
-      setStep('restaurant')
+      // Register first
+      const response = await fetchFromService('user', '/api/auth/signup/restaurantowner', 'POST', {
+        username,
+        password,
+        email,
+        firstName,
+        lastName,
+        phoneNumber,
+      });
+
+      setOwnerFormData(prev => ({ ...prev, id: response.id }));
+
+      const loginResponse = await fetchFromService('user', '/api/auth/login', 'POST', {
+        username,
+        password
+      });
+
+      login({
+        id: loginResponse.id,
+        username: loginResponse.username,
+        email: loginResponse.email,
+        roles: loginResponse.roles
+      }, loginResponse.token);
+
+      setStep('restaurant');
     } catch (error) {
-      console.error('Error registering owner:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Failed to register. Please try again.'
-      setError(errorMessage)
+      console.error('Error registering owner:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to register. Please try again.';
+      setError(errorMessage);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
+
 
   const handleRestaurantSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -112,12 +116,12 @@ export function RestaurantRegistration() {
       }
 
       const response = await fetchFromService('restaurant', '/restaurants/add', 'POST', requestBody)
-      
+
       if (!response) {
         throw new Error('No response received from restaurant service')
       }
 
-      router.push('/')
+      router.push('/dashboardres')
     } catch (error) {
       console.error('Error registering restaurant:', error)
       if (error instanceof Error) {
@@ -160,7 +164,7 @@ export function RestaurantRegistration() {
 
             <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="bg-white shadow rounded-lg p-8">
               {error && <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-md">{error}</div>}
-              
+
               {step === 'owner' ? (
                 <form onSubmit={handleOwnerSubmit} className="space-y-6">
                   <div>
