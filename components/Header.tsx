@@ -2,17 +2,18 @@
 import React, { useState } from 'react'
 import {
   MapPinIcon,
-  ShoppingBagIcon,
+  ShoppingCart,
   UserIcon,
   MenuIcon,
   SearchIcon,
-  BellIcon,
+  ChefHatIcon,
 } from 'lucide-react'
 import NotificationModel from './ui/NotificationModel'
 import { CartModal } from './CartModal'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
+
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -30,7 +31,7 @@ export function Header() {
           <div className="flex items-center">
             <Link
               href="/">
-              <Image src="/images/logo.jpg" alt="Logo" width={130} height={80} className="ml-5" />
+              <Image src="/images/logo.png" alt="Logo" width={130} height={80} className="ml-5" />
             </Link>
           </div>
           <div className="hidden md:flex items-center cursor-pointer hover:text-purple-600 transition-colors">
@@ -48,12 +49,18 @@ export function Header() {
               className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
             />
           </div>
+            <Link
+              href="/dashboardres"
+              className="hidden md:flex items-center px-2 py-2 bg-purple-500 text-white rounded-full hover:bg-purple-600 transition-all duration-200 transform hover:scale-105 mr-2"
+            >
+              <ChefHatIcon size={18} className="mr-0" />
+            </Link>
           <div className="flex items-center space-x-2">
             <button
               className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
               onClick={() => setIsCartOpen(!isCartOpen)}
             >
-              <ShoppingBagIcon size={20} className="text-gray-700" />
+              <ShoppingCart size={20} className="text-gray-700" />
             </button>
             <div
               className="p-2 hover:bg-gray-100 rounded-full relative transition-colors duration-200"

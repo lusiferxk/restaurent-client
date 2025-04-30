@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XIcon, StarIcon, ClockIcon } from 'lucide-react';
 import type { Restaurant } from './RestaurantCard';
 import { fetchMenuItems } from '@/utils/fetchMenuItems';
+import { useRouter } from 'next/navigation'
 
 interface MenuItem {
   id: string;
@@ -27,7 +28,13 @@ export function RestaurantDetailsModal({
   isOpen,
   onClose,
 }: RestaurantDetailsModalProps) {
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState('All')
+  const router = useRouter()
+
+  const handleExpand = () => {
+    onClose()
+    router.push(`/restaurant/${restaurant.id}`)
+  }
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -82,11 +89,20 @@ export function RestaurantDetailsModal({
                 <XIcon size={24} />
               </button>
             </div>
-
-            <div className="p-6">
-              <h2 className="text-2xl font-bold">{restaurant.name}</h2>
-
-              <div className="flex items-center mt-2 text-sm text-gray-600 flex-wrap">
+            {/* Content */}
+            <div className="px-8 py-6">
+              {/* Header Row */}
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-2xl font-bold">{restaurant.name}</h2>
+                <button
+                  onClick={handleExpand}
+                  className="text-purple-600 hover:underline text-base font-medium focus:outline-none"
+                  style={{ minWidth: 0 }}
+                >
+                  View full page
+                </button>
+              </div>
+              <div className="flex items-center mt-2 text-sm text-gray-600">
                 <div className="flex items-center">
                   <StarIcon size={16} className="text-yellow-500 mr-1" fill="currentColor" />
                   <span className="font-medium">{restaurant.rating}</span>
@@ -117,35 +133,27 @@ export function RestaurantDetailsModal({
                   ))}
                 </div>
               </div>
-
-              <div className="space-y-6 overflow-y-auto max-h-[calc(90vh-400px)]">
-                {loading ? (
-                  <div className="text-center text-gray-500">Loading menu...</div>
-                ) : filteredItems.length === 0 ? (
-                  <div className="text-center text-gray-500">No items in this category.</div>
-                ) : (
-                  filteredItems.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="flex space-x-4 p-4 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
-                    >
-                      <img
+              {/* Menu Items Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 overflow-y-auto max-h-[calc(90vh-400px)]">
+                {menuItems.map((item, idx) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.07 }}
+                    whileHover={{ scale: 1.04, boxShadow: '0 4px 24px rgba(80,0,120,0.10)' }}
+                    className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center hover:bg-purple-50 transition-all cursor-pointer"
+                  >
+                    <img
                         src={item.image || fallbackImage}
                         alt={item.name}
-                        className="w-24 h-24 rounded-lg object-cover"
-                      />
-                      <div className="flex-1">
-                        <h3 className="font-medium">{item.name}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                        <p className="text-purple-600 font-medium mt-2">
-                          Rs. {item.price.toFixed(2)}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))
-                )}
+                      className="w-20 h-20 rounded-lg object-cover mb-3 shadow"
+                    />
+                    <h3 className="font-semibold text-center mb-1">{item.name}</h3>
+                    <p className="text-xs text-gray-600 text-center mb-2">{item.description}</p>
+                    <p className="text-purple-600 font-bold text-base">${item.price.toFixed(2)}</p>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </motion.div>
@@ -154,3 +162,5 @@ export function RestaurantDetailsModal({
     </AnimatePresence>
   );
 }
+
+export default RestaurantDetailsModal
