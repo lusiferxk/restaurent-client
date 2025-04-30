@@ -6,7 +6,7 @@ import { Footer } from "./Footer";
 
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hideLayout = pathname.startsWith("/restaurant/");
+  const hideLayout = pathname.startsWith("/dashboard/");
 
   return (
     <>
