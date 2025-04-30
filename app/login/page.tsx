@@ -34,9 +34,17 @@ export default function LoginPage() {
           roles: response.roles
         },
         response.token
-      );      
-      
-      router.push('/')
+      );
+
+      // Role-based redirect
+      const roles: string[] = response.roles;
+      if (roles.includes('ROLE_RESTAURANT_OWNER')) {
+        router.push('/dashboard/dashboardres');
+      } else if (roles.includes('ROLE_ADMIN')) {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.')
     }
@@ -62,7 +70,7 @@ export default function LoginPage() {
             <div className="absolute bottom-40 right-30 w-60 h-60 rounded-full bg-white"></div>
             <div className="absolute top-1/2 right-1/4 w-80 h-80 rounded-full bg-white"></div>
           </div>
-          
+
           <div className="relative z-10 max-w-md mx-auto">
             <div className="flex items-center mb-8">
               <Utensils size={32} className="mr-2" />
@@ -95,7 +103,7 @@ export default function LoginPage() {
                   <UserIcon size={32} className="text-purple-600" />
                 </div>
               </div>
-              
+
               <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
                 Welcome Back!
               </h2>
@@ -201,7 +209,7 @@ export default function LoginPage() {
                           className="w-full flex items-center justify-center py-2.5 px-4 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                         >
                           <UserIcon size={16} className="mr-2" />
-                          User 
+                          User
                         </Link>
                       </motion.div>
                       <motion.div whileHover={{ y: -2 }}>
@@ -219,7 +227,7 @@ export default function LoginPage() {
                           className="w-full flex items-center justify-center py-2.5 px-4 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                         >
                           <UserIcon size={16} className="mr-2" />
-                          Deliverer 
+                          Deliverer
                         </Link>
                       </motion.div>
                     </div>
