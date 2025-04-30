@@ -121,7 +121,7 @@ export function RestaurantRegistration() {
         throw new Error('No response received from restaurant service')
       }
 
-      router.push('/dashboard/dashboardres')
+      router.push('/dashboardres')
     } catch (error) {
       console.error('Error registering restaurant:', error)
       if (error instanceof Error) {

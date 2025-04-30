@@ -1,25 +1,16 @@
+"use client"
+
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  ChefHatIcon,
-  ClipboardListIcon,
-  TruckIcon,
-  UsersIcon,
-  BookOpenIcon,
-  BarChartIcon,
-  SettingsIcon,
-  MessageSquareIcon,
-  DollarSignIcon,
-  StarIcon,
-  AlertCircleIcon,
-  LogOutIcon,
-  PlusCircleIcon,
-  ListIcon,
-  TrashIcon,
-  PencilIcon,
+  ChefHatIcon, ClipboardListIcon, TruckIcon, UsersIcon, BookOpenIcon, BarChartIcon, SettingsIcon, MessageSquareIcon,
+  DollarSignIcon, StarIcon, AlertCircleIcon, LogOutIcon, PlusCircleIcon, ListIcon, TrashIcon, PencilIcon,
 } from 'lucide-react'
- function Sidebar() {
+
+import { useAuth } from '@/contexts/AuthContext'
+
+function Sidebar() {
   const menuItems = [
     {
       title: 'Menu Management',
@@ -28,23 +19,14 @@ import {
         {
           name: 'Add Menu Item',
           icon: <PlusCircleIcon size={18} />,
-          path: '/restaurant/menu/add',
+          path: '/restaurant/add-menu-item',
         },
         {
           name: 'View All Items',
           icon: <ListIcon size={18} />,
-          path: '/restaurant/menu/all',
+          path: '/restaurant/view-all-menu-items',
         },
-        {
-          name: 'Update Items',
-          icon: <PencilIcon size={18} />,
-          path: '/restaurant/menu/update',
-        },
-        {
-          name: 'Delete Items',
-          icon: <TrashIcon size={18} />,
-          path: '/restaurant/menu/delete',
-        },
+       
       ],
     },
     {
@@ -124,14 +106,18 @@ import {
       path: '/restaurant/settings',
     },
   ]
+
+  const { user, logout } = useAuth()
+
+
   return (
-    
+
     <div className="flexw-64 bg-white h-full shadow-lg overflow-y-auto ">
       <div className="p-4 border-b border-purple-800">
       <div className="flex items-center">
             <Link 
               href="/">
-              <Image src="/images/logo.jpg" alt="Logo" width={130} height={80} className="ml-5 mb-4" />
+              <Image src="/images/logo.png" alt="Logo" width={130} height={80} className="ml-5 mb-4" />
             </Link>
           </div>
         <div className="flex items-center space-x-2">
@@ -165,7 +151,10 @@ import {
           </div>
         ))}
         <div className="mt-auto pt-4 border-t">
-          <button className="flex items-center w-full px-4 py-2.5 text-red-600 rounded-lg hover:bg-red-50">
+          <button
+            className="flex items-center w-full px-4 py-2.5 text-red-600 rounded-lg hover:bg-red-50"
+            onClick={() => logout()}
+          >
             <LogOutIcon size={20} />
             <span className="ml-3 font-medium">Logout</span>
           </button>
