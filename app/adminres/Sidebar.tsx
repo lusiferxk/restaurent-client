@@ -1,25 +1,16 @@
+"use client"
+
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  ChefHatIcon,
-  ClipboardListIcon,
-  TruckIcon,
-  UsersIcon,
-  BookOpenIcon,
-  BarChartIcon,
-  SettingsIcon,
-  MessageSquareIcon,
-  DollarSignIcon,
-  StarIcon,
-  AlertCircleIcon,
-  LogOutIcon,
-  PlusCircleIcon,
-  ListIcon,
-  TrashIcon,
-  PencilIcon,
+  ChefHatIcon, ClipboardListIcon, TruckIcon, UsersIcon, BookOpenIcon, BarChartIcon, SettingsIcon, MessageSquareIcon,
+  DollarSignIcon, StarIcon, AlertCircleIcon, LogOutIcon, PlusCircleIcon, ListIcon, TrashIcon, PencilIcon,
 } from 'lucide-react'
- function Sidebar() {
+
+import { useAuth } from '@/contexts/AuthContext'
+
+function Sidebar() {
   const menuItems = [
     {
       title: 'Menu Management',
@@ -115,8 +106,12 @@ import {
       path: '/restaurant/settings',
     },
   ]
+
+  const { user, logout } = useAuth()
+
+
   return (
-    
+
     <div className="flexw-64 bg-white h-full shadow-lg overflow-y-auto ">
       <div className="p-4 border-b border-purple-800">
       <div className="flex items-center">
@@ -156,7 +151,10 @@ import {
           </div>
         ))}
         <div className="mt-auto pt-4 border-t">
-          <button className="flex items-center w-full px-4 py-2.5 text-red-600 rounded-lg hover:bg-red-50">
+          <button
+            className="flex items-center w-full px-4 py-2.5 text-red-600 rounded-lg hover:bg-red-50"
+            onClick={() => logout()}
+          >
             <LogOutIcon size={20} />
             <span className="ml-3 font-medium">Logout</span>
           </button>
