@@ -31,8 +31,6 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const selectedRestaurant = restaurants.find((r) => r.id === selectedRestaurantId);
 
-  
-
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
@@ -71,12 +69,16 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [user?.id]);
 
   if (loading) {
-    return <div className="p-8 text-gray-600">Loading your dashboard...</div>;
-  }
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent"></div>
+      </div>
+    );
+  }  
 
-  const hasUnverified = restaurants.some((r) => !r.verifiedByAdmin);
+  const hasAtLeastOneVerified = restaurants.some((r) => r.verifiedByAdmin);
 
-  if (restaurants.length === 0 || hasUnverified) {
+  if (!hasAtLeastOneVerified) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-100 text-center px-4">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md">
@@ -106,11 +108,13 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
             onChange={(e) => setSelectedRestaurantId(e.target.value)}
             className="px-4 py-2 border rounded-md bg-white shadow-sm text-sm"
           >
-            {restaurants.map((restaurant) => (
-              <option key={restaurant.id} value={restaurant.id}>
-                {restaurant.name}
-              </option>
-            ))}
+            {restaurants
+              .filter((r) => r.verifiedByAdmin)
+              .map((restaurant) => (
+                <option key={restaurant.id} value={restaurant.id}>
+                  {restaurant.name}
+                </option>
+              ))}
           </select>
         </div>
 
