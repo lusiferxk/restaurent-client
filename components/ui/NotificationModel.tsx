@@ -3,11 +3,12 @@ import { useEffect, useState, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { format, parseISO } from 'date-fns';
+import { jwtDecode } from 'jwt-decode';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Notification {
   id: number;
-  userId: string;
+  userId: number;
   title: string;
   message: string;
   read: boolean;
@@ -15,8 +16,24 @@ interface Notification {
   type?: 'order' | 'promotion';
 }
 
+interface OrderNotification {
+  userId: number;
+  title: string;
+  message: string;
+  type?: 'order' | 'promotion';
+  email?: string;
+  timestamp?: string;
+}
+
+interface CustomJwtPayload {
+  userId: number;
+  [key: string]: any;
+}
+
 export default function NotificationModel() {
+  const token = localStorage.getItem("authToken");
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [orderNotifications, setOrderNotifications] = useState<OrderNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,9 +42,20 @@ export default function NotificationModel() {
   const [expandedNotificationId, setExpandedNotificationId] = useState<number | null>(null);
   const stompClient = useRef<Client | null>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
-  const currentUserId = 123;
+  const [currentUserId, setUserId] = useState<number | null>(null);
 
-  // Click outside handler
+  useEffect(() => {
+    if (token) {
+      try {
+        const decodedToken = jwtDecode<CustomJwtPayload>(token);
+        setUserId(decodedToken.userId);
+      } catch (error) {
+        console.error('Invalid token:', error);
+      }
+    }
+  }, [token]);
+
+  // Close notifications on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
@@ -42,18 +70,35 @@ export default function NotificationModel() {
     };
   }, []);
 
-  const filteredNotifications = notifications.filter(notification => {
+  // Combine both notification sources
+  const allNotifications = [
+    ...notifications,
+    ...orderNotifications.map((notification, index) => ({
+      id: Date.now() + index, // Temporary ID for WS notifications
+      userId: notification.userId,
+      title: notification.title,
+      message: notification.message,
+      type: notification.type || 'order',
+      read: false,
+      timestamp: notification.timestamp || new Date().toISOString()
+    }))
+  ];
+
+  // Filter notifications based on active tab
+  const filteredNotifications = allNotifications.filter(notification => {
+    if (!currentUserId) return false;
+    if (notification.userId !== currentUserId) return false;
     if (activeTab === 'orders') return notification.type === 'order';
-    if (activeTab === 'promotions') return notification.type !== 'order';
+    if (activeTab === 'promotions') return notification.type === 'promotion';
     return true;
   });
 
+  // Format notification date with safety checks
   const formatNotificationDate = (dateString?: string) => {
     if (!dateString) return '--:-- --';
-    
     try {
       const isoString = dateString.includes(' ') 
-        ? dateString.replace(' ', 'T')
+        ? dateString.replace(' ', 'T') + 'Z'
         : dateString;
       return format(parseISO(isoString), 'h:mm a').toLowerCase();
     } catch (error) {
@@ -62,17 +107,21 @@ export default function NotificationModel() {
     }
   };
 
+  // Fetch REST API notifications
   const fetchNotifications = async () => {
+    if (!token) return;
+
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8080/notifications');
+      const response = await fetch('http://localhost:8080/notifications', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       
       const data: Notification[] = await response.json();
-      const userNotifications = data.filter(n => n.userId === currentUserId);
-      setNotifications(userNotifications);
-      setUnreadCount(userNotifications.filter(n => !n.read).length);
+      setNotifications(data);
+      setUnreadCount(data.filter(n => !n.read).length);
     } catch (error) {
       console.error('Error:', error);
       setError('Failed to load notifications');
@@ -81,85 +130,131 @@ export default function NotificationModel() {
     }
   };
 
+  // WebSocket connection and subscription
   useEffect(() => {
-    console.log('Initializing WebSocket connection...');
-    
+    if (!token || !currentUserId) return;
+  
     const client = new Client({
-        webSocketFactory: () => {
-            console.log('Creating SockJS connection...');
-            return new SockJS('http://localhost:8080/ws');
-        },
-        reconnectDelay: 5000,
-        onConnect: () => {
-            console.log('WebSocket connected! Subscribing...');
-            
-            const subscription = client.subscribe(
-                `/user/${currentUserId}/queue/notifications`,
-                (message) => {
-                    console.log('RAW MESSAGE RECEIVED:', message);
-                    const newNotification: Notification = JSON.parse(message.body);
-                    console.log('PARSED NOTIFICATION:', newNotification);
-                    setNotifications(prev => [newNotification, ...prev]);
-                    setUnreadCount(prev => prev + 1);
-                }
-            );
-            
-            console.log('Subscription details:', subscription);
-        },
-        onDisconnect: () => console.log('WebSocket disconnected'),
-        onWebSocketError: (error) => console.error('WebSocket error:', error),
-        onStompError: (frame) => console.error('STOMP error:', frame)
+      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
+        'heart-beat': '10000,10000'
+      },
+      debug: (str) => console.log('STOMP:', str),
+      
+      onConnect: () => {
+        client.subscribe(
+          '/user/queue/notifications',
+          (message) => {
+            try {
+              const newNotification: OrderNotification = JSON.parse(message.body);
+              console.log('Received WebSocket notification:', newNotification);
+              setOrderNotifications(prev => [...prev, {
+                ...newNotification,
+                timestamp: new Date().toISOString()
+              }]);
+              setUnreadCount(prev => prev + 1);
+            } catch (error) {
+              console.error('Failed to parse WebSocket message:', error);
+            }
+          },
+          { Authorization: `Bearer ${token}` }
+        );
+      },
+      
+      onStompError: (frame) => {
+        console.error('STOMP error:', frame.headers?.message);
+      }
     });
-
+    
     stompClient.current = client;
     client.activate();
-
     return () => {
-        console.log('Cleaning up WebSocket...');
-        client.deactivate();
+      if (stompClient.current) {
+        stompClient.current.deactivate();
+        stompClient.current = null;
+      }
     };
-  }, [currentUserId]);
+  }, [token, currentUserId]);
 
+  // Mark notification as read
   const markAsRead = async (id: number) => {
     try {
-      await fetch(`http://localhost:8080/notifications/read?id=${id}`, { method: 'PUT' });
-      setNotifications(prev => prev.map(n => n.id === id ? {...n, read: true} : n));
+      await fetch(`http://localhost:8080/notifications/${id}/read`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setNotifications(prev => prev.map(n => 
+        n.id === id ? {...n, read: true} : n
+      ));
       setUnreadCount(prev => prev - 1);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error marking as read:', error);
     }
   };
 
+  // Handle notification click
   const handleNotificationClick = async (notification: Notification) => {
-    if (!notification.read) {
+    if (!notification.read && notification.id) {
       await markAsRead(notification.id);
     }
     setExpandedNotificationId(expandedNotificationId === notification.id ? null : notification.id);
   };
 
+  // Mark all notifications as read
+  const markAllAsRead = async () => {
+    try {
+      await fetch(`http://localhost:8080/notifications/read-all`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setNotifications(prev => prev.map(n => ({...n, read: true})));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
+  };
+
+  // Delete notification
   const deleteNotification = async (id: number) => {
     try {
-      await fetch(`http://localhost:8080/notifications/delete?id=${id}`, { method: 'DELETE' });
+      await fetch(`http://localhost:8080/notifications/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setNotifications(prev => prev.filter(n => n.id !== id));
-      setUnreadCount(prev => notifications.find(n => n.id === id)?.read ? prev : prev - 1);
+      setUnreadCount(prev => 
+        notifications.find(n => n.id === id)?.read ? prev : prev - 1
+      );
       if (expandedNotificationId === id) {
         setExpandedNotificationId(null);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error deleting notification:', error);
     }
   };
 
+  // Send test notification (for testing purposes)
   const sendTestNotification = () => {
     if (stompClient.current?.connected) {
       stompClient.current.publish({
         destination: '/app/sendNotification',
         body: JSON.stringify({
+          title: 'Test Order Notification',
+          message: 'This is a test order message',
+          type: 'order',
           userId: currentUserId,
-          title: 'Test Notification with a very long title that should be truncated when collapsed',
-          message: 'This is a test message with more details that would be shown when expanded. It contains additional information that the user might want to see when they click on the notification. The message can be quite long and should be properly displayed when expanded.',
-          type: 'order'
-        })
+          email: 'sudaraka731@gmail.com'
+        }),
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
     }
   };
@@ -320,8 +415,6 @@ export default function NotificationModel() {
                               </div>
                             </div>
                             
-                            
-
                             <AnimatePresence>
                               <motion.div
                                 initial={{ opacity: 0, height: 0 }}
@@ -379,18 +472,20 @@ export default function NotificationModel() {
                             </div>
                           </div>
                           <div className="flex space-x-1 ml-2">
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deleteNotification(notification.id);
-                              }}
-                              className="p-1.5 rounded-full hover:bg-red-50 text-gray-500 hover:text-red-500 transition-colors group"
-                              title="Delete"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
+                            {notification.id && ( // Only show delete for REST notifications
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteNotification(notification.id!);
+                                }}
+                                className="p-1.5 rounded-full hover:bg-red-50 text-gray-500 hover:text-red-500 transition-colors group"
+                                title="Delete"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -412,7 +507,6 @@ export default function NotificationModel() {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                {/* <span>Refresh</span> */}
               </button>
               <div className="flex space-x-2">
                 <span className="inline-flex items-center space-x-2 text-sm text-blue-500 hover:text-gray-800 px-3 py-1.5 rounded-full hover:bg-gray-200 transition-colors">
@@ -435,8 +529,7 @@ export default function NotificationModel() {
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
-                      Promise.all(unreadIds.map(markAsRead));
+                      markAllAsRead();
                     }}
                     className=""
                   >

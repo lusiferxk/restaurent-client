@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import Image from "next/image";
 
@@ -10,30 +11,56 @@ const categories = [
   { id: 6, name: "Healthy", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1780&q=80" },
 ];
 
+// Repeat enough times to fill the line
+const repeatedCategories = Array(5).fill(categories).flat();
+
 export function Categories() {
   return (
-    <div className="py-10 bg-white">
-      <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold mb-6">
+    <div className="py-13 mt-5 bg-white">
+      <div className="container mx-auto px-14">
+        <h2 className="text-2xl md:text-3xl text-purple-950 font-bold mb-6">
           What&apos;s on your mind?
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((category) => (
-            <div key={category.id} className="group cursor-pointer">
-              <div className="relative rounded-full overflow-hidden aspect-square mb-2">
-                <Image
-                  src={category.image}
-                  alt={category.name}
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0  bg-opacity-20 group-hover:bg-opacity-30 transition-opacity z-10"></div>
+        <div className="overflow-hidden">
+          <div className="flex animate-slide">
+            {repeatedCategories.map((category, index) => (
+              <div
+                key={index}
+                className="group cursor-pointer flex flex-col items-center mx-4"
+              >
+                <div
+                  className="relative rounded-full overflow-hidden mb-2"
+                  style={{ width: "130px", height: "130px" }}
+                >
+                  <Image
+                    src={category.image}
+                    alt={category.name}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-opacity-20 group-hover:bg-opacity-30 transition-opacity z-10"></div>
+                </div>
+                <p className="text-center font-medium mt-2">{category.name}</p>
               </div>
-              <p className="text-center font-medium">{category.name}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
+      <style jsx>{`
+        @keyframes slide {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-20%);
+          }
+        }
+        .animate-slide {
+          display: flex;
+          width: 500%; /* Large enough for seamless loop */
+          animation: slide 40s linear infinite;
+        }
+      `}</style>
     </div>
   );
-}
+} 

@@ -87,71 +87,67 @@ export function CartModal({ isOpen, onClose }: CartModalProps) {
             className="fixed right-0 top-0 h-full w-full md:w-[400px] bg-white shadow-xl z-50 flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-2xl font-semibold">Your Cart</h2>
+            <div className="flex items-center justify-between p-6 border-b border-purple-300">
+              <h2 className="text-2xl font-bold text-purple-700">Your Cart</h2>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 hover:bg-purple-100 rounded-full transition-colors"
               >
-                <XIcon size={24} />
+                <XIcon size={24} className="text-purple-700" />
               </button>
             </div>
 
             {/* Cart Items */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-6 space-y-5">
               {cartItems.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-start space-x-4 mb-6 pb-6 border-b last:border-0"
+                  className="relative flex bg-gray-50 rounded-xl p-4 gap-4 shadow-sm transition-shadow hover:shadow-[0_4px_24px_0_rgba(168,85,247,0.25)]"
                   onMouseEnter={() => setHoveredItem(item)}
                   onMouseLeave={() => setHoveredItem(null)}
                 >
+                  {/* Checkbox at the start */}
+                  <input type="checkbox" className="accent-purple-600 w-5 h-5 mt-1 mr-2" />
+                  {/* Delete icon top right */}
+                  <button className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors">
+                    <TrashIcon size={18} />
+                  </button>
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-20 h-20 rounded-lg object-cover"
+                    className="w-16 h-16 rounded-lg object-cover border border-gray-200"
                   />
-                  <div className="flex-1">
-                    <h3 className="font-medium">{item.name}</h3>
-                    <p className="text-sm text-gray-600">{item.restaurant}</p>
-                    <div className="mt-2 flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <button className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-                          <MinusIcon size={20} />
-                        </button>
-                        <span className="font-medium">{item.quantity}</span>
-                        <button className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-                          <PlusIcon size={20} />
-                        </button>
-                      </div>
-                      <button className="text-red-500 hover:text-red-600 transition-colors">
-                        <TrashIcon size={20} />
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-semibold text-base text-gray-900 truncate">{item.name}</h3>
+                      <p className="text-xs text-gray-500 truncate">{item.description}</p>
+                    </div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <button className="p-1 bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors">
+                        <MinusIcon size={18} />
+                      </button>
+                      <span className="font-semibold text-base text-gray-800">{item.quantity}</span>
+                      <button className="p-1 bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200 transition-colors">
+                        <PlusIcon size={18} />
                       </button>
                     </div>
                   </div>
-                  <div className="font-medium">
-                    ${(item.price * item.quantity).toFixed(2)}
+                  {/* Price bottom right */}
+                  <div className="absolute bottom-3 right-3 text-purple-700 font-bold text-lg">
+                    ${item.price.toFixed(2)}
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Summary */}
-            <div className="border-t p-6 space-y-4">
-              <div className="flex justify-between text-sm">
-                <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+            <div className="border-t border-purple-300 p-6 space-y-4 bg-gray-50 rounded-b-xl">
+              <div className="flex justify-between text-base font-medium">
+                <span>Total:</span>
+                <span className="text-purple-700 font-bold text-xl">${total.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span>Delivery Fee</span>
-                <span>${deliveryFee.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between font-semibold text-lg">
-                <span>Total</span>
-                <span>${total.toFixed(2)}</span>
-              </div>
-              <button className="w-full bg-purple-600 text-white py-3 rounded-full font-medium hover:bg-purple-700 transform hover:scale-[1.02] transition-all">
-                Checkout
+              <button className="w-full bg-purple-600 text-white py-3 rounded-full font-semibold hover:bg-purple-700 transition-all flex items-center justify-center gap-2 text-lg">
+                Proceed to Checkout <span className="ml-2">→</span>
               </button>
             </div>
           </motion.div>
