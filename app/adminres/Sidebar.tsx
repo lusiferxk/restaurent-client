@@ -58,13 +58,29 @@ function Sidebar() {
       icon: <TruckIcon size={20} />,
       submenu: [
         {
-          name: 'Delivery Partners',
-          path: '/restaurant/delivery/partners',
+          name: 'Register for Restaurant',
+          path: '',
         },
         {
-          name: 'Delivery Zones',
-          path: '/restaurant/delivery/zones',
+          name: 'All registered Restaurants',
+          path: '',
         },
+        
+      ],
+    },
+    {
+      title: 'Vehicle Management',
+      icon: <TruckIcon size={20} />,
+      submenu: [
+        {
+          name: 'Vehicle Registration',
+          path: '',
+        },
+        {
+          name: 'Vehicle Details',
+          path: '',
+        },
+        
       ],
     },
     {
