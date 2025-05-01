@@ -29,7 +29,7 @@ export function Header() {
           <div className="flex items-center">
             <Link 
               href="/">
-              <Image src="/images/logo.jpg" alt="Logo" width={130} height={80} className="ml-5" />
+              <Image src="/images/logo.png" alt="Logo" width={130} height={80} className="ml-5" />
             </Link>
           </div>
           <div className="hidden md:flex items-center cursor-pointer hover:text-purple-600 transition-colors">
