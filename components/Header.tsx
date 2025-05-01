@@ -57,6 +57,12 @@ export function Header() {
               <ChefHatIcon size={18} className="mr-0" />
             </Link>
           )}
+           <Link
+              href="/deliverer/dashboard-deliverer"
+              className="hidden md:flex items-center px-2 py-2 bg-purple-500 text-white rounded-full hover:bg-purple-600 transition-all duration-200 transform hover:scale-105 mr-2"
+            >
+              <ChefHatIcon size={18} className="mr-0" />
+            </Link>
           <div className="flex items-center space-x-2">
             <button
               className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"

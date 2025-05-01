@@ -11,7 +11,7 @@ import {
   ThumbsUpIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { restaurants } from '@/components/RestaurantList'
+import  restaurants  from '@/components/RestaurantList'
 import { motion } from 'framer-motion'
 import HealthAdvice from '@/components/HealthAdvice'
 import MealCard from '@/components/MealCard'
