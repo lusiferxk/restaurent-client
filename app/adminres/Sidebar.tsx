@@ -27,6 +27,7 @@ function Sidebar() {
           path: '/restaurant/view-all-menu-items',
         },
        
+       
       ],
     },
     {
@@ -34,12 +35,21 @@ function Sidebar() {
       icon: <ClipboardListIcon size={20} />,
       submenu: [
         {
+          name: 'Create Order',
+          path: '/restaurant/create-order',
+        },
+        {
           name: 'Active Orders',
           path: '/restaurant/orders/active',
         },
         {
           name: 'Order History',
           path: '/restaurant/orders/history',
+        },
+        {
+          name: 'Create cart',
+          icon: <ListIcon size={18} />,
+          path: '/restaurant/create-cart',
         },
       ],
     },
@@ -58,13 +68,10 @@ function Sidebar() {
       ],
     },
     {
-      title: 'Staff',
+      title: 'orders',
       icon: <UsersIcon size={20} />,
       submenu: [
-        {
-          name: 'Manage Staff',
-          path: '/restaurant/staff',
-        },
+       
         {
           name: 'Schedules',
           path: '/restaurant/staff/schedules',
