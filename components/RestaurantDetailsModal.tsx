@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XIcon, StarIcon, ClockIcon } from 'lucide-react';
+import { XIcon, StarIcon, ClockIcon, ShoppingCartIcon  } from 'lucide-react';
 import type { Restaurant } from './RestaurantCard';
 import { useRouter } from 'next/navigation';
 
@@ -132,7 +132,7 @@ export function RestaurantDetailsModal({
                     <img
                       src={item.image || fallbackImage}
                       alt={item.name}
-                      className="w-20 h-20 rounded-lg object-cover mb-3 shadow"
+                      className="w-full h-20 rounded-lg object-cover mb-3 shadow"
                     />
                     <h3 className="font-semibold text-center mb-1">{item.name}</h3>
                     <p className="text-xs text-gray-600 text-center mb-2">{item.description}</p>
