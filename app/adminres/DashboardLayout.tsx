@@ -31,6 +31,25 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const selectedRestaurant = restaurants.find((r) => r.id === selectedRestaurantId);
 
+  if (user && !user.roles.includes("ROLE_RESTAURANT_OWNER")) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-100 text-center px-4">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md">
+          <h2 className="text-2xl font-semibold text-red-600 mb-4">Access Denied</h2>
+          <p className="text-gray-700 mb-4">
+            This dashboard is restricted to restaurant owners only.
+          </p>
+          <button
+            onClick={() => router.push("/")}
+            className="mt-2 px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-all"
+          >
+            Go to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
@@ -74,7 +93,7 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent"></div>
       </div>
     );
-  }  
+  }
 
   const hasAtLeastOneVerified = restaurants.some((r) => r.verifiedByAdmin);
 
@@ -118,7 +137,6 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
           </select>
         </div>
 
-        {/* Render children under selected restaurant context */}
         {children}
       </main>
     </div>
