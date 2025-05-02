@@ -14,10 +14,12 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const { login } = useAuth()
   const router = useRouter()
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setLoading(true);
 
     try {
       const response = await fetchFromService("user", "/api/auth/login", "POST", {
@@ -25,7 +27,6 @@ export default function LoginPage() {
         password
       });
 
-      // Update auth context with user data and token
       login(
         {
           id: response.id,
@@ -47,6 +48,9 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       setError(err.message || 'Login failed. Please check your credentials.')
+    }
+    finally {
+      setLoading(false);
     }
   }
 
@@ -182,12 +186,16 @@ export default function LoginPage() {
 
                     <div>
                       <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={!loading ? { scale: 1.02 } : undefined}
+                        whileTap={!loading ? { scale: 0.98 } : undefined}
                         type="submit"
-                        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                        disabled={loading}
+                        className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white ${loading
+                            ? 'bg-purple-400 cursor-not-allowed'
+                            : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'
+                          } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500`}
                       >
-                        Sign in
+                        {loading ? 'Signing in...' : 'Sign in'}
                       </motion.button>
                     </div>
                   </form>
