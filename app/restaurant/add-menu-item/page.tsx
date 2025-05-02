@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Save,
   X,
@@ -18,13 +18,25 @@ const AddMenuItem = () => {
     name: '',
     price: '',
     description: '',
+    category: '',
     available: true,
     imageUrl: ''
   });
 
+  const [userId, setUserId] = useState<number | null>(null);
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    const uid = localStorage.getItem('userId');
+    const rid = localStorage.getItem('restaurantId');
+    if (uid && rid) {
+      setUserId(Number(uid));
+      setRestaurantId(rid);
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type, checked } = e.target;
@@ -47,7 +59,7 @@ const AddMenuItem = () => {
     });
 
     const data = await res.json();
-    return data.secure_url; // ✅ imageUrl
+    return data.secure_url;
   };
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -55,25 +67,30 @@ const AddMenuItem = () => {
     setIsSubmitting(true);
 
     try {
+      if (!userId || !restaurantId) throw new Error("Missing user or restaurant");
+
       const imageUrl = await handleImageUpload();
 
       const payload = {
-        ...menuItem,
+        userId,
+        restaurantId,
+        name: menuItem.name,
         price: parseFloat(menuItem.price),
+        description: menuItem.description,
+        category: menuItem.category,
+        available: menuItem.available,
         imageUrl
       };
 
       await fetchFromService('restaurant', '/menu/add', 'POST', [payload]);
 
-      setMessage({
-        type: 'success',
-        text: 'Menu item added successfully!'
-      });
+      setMessage({ type: 'success', text: 'Menu item added successfully!' });
 
       setMenuItem({
         name: '',
         price: '',
         description: '',
+        category: '',
         available: true,
         imageUrl: ''
       });
@@ -146,7 +163,6 @@ const AddMenuItem = () => {
                 value={menuItem.name}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="e.g. Chicken Burger"
                 required
               />
             </div>
@@ -159,9 +175,20 @@ const AddMenuItem = () => {
                 value={menuItem.price}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="e.g. 750.00"
+                required
                 min="0"
                 step="0.01"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Category*</label>
+              <input
+                type="text"
+                name="category"
+                value={menuItem.category}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 required
               />
             </div>
@@ -173,7 +200,6 @@ const AddMenuItem = () => {
                 value={menuItem.description}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="Describe your menu item"
                 rows={4}
               />
             </div>
@@ -200,6 +226,7 @@ const AddMenuItem = () => {
                     name: '',
                     price: '',
                     description: '',
+                    category: '',
                     available: true,
                     imageUrl: ''
                   });
