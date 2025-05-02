@@ -231,7 +231,7 @@ export default function LoginPage() {
                       </motion.div>
                       <motion.div whileHover={{ y: -2 }}>
                         <Link
-                          href="/register/user_reg"
+                          href="/register/delivery-person-reg"
                           className="w-full flex items-center justify-center py-2.5 px-4 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                         >
                           <UserIcon size={16} className="mr-2" />
