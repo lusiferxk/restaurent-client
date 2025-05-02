@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 const SERVICES = {
   restaurant: 'https://restaurant-service-ilaj.onrender.com',
   user: 'https://user-service-f124.onrender.com',
+  order: 'https://order-service-96vx.onrender.com',
 };
 
 // Rate limiting configuration

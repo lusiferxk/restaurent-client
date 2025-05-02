@@ -27,12 +27,17 @@ function Sidebar() {
           path: '/restaurant/view-all-menu-items',
         },
        
+       
       ],
     },
     {
       title: 'Orders',
       icon: <ClipboardListIcon size={20} />,
       submenu: [
+        {
+          name: 'Create Order',
+          path: '/restaurant/create-order',
+        },
         {
           name: 'Active Orders',
           path: '/restaurant/orders/active',
@@ -41,6 +46,11 @@ function Sidebar() {
           name: 'Order History',
           path: '/restaurant/orders/history',
         },
+        {
+          name: 'Create cart',
+          icon: <ListIcon size={18} />,
+          path: '/restaurant/create-cart',
+        },
       ],
     },
     {
@@ -48,23 +58,36 @@ function Sidebar() {
       icon: <TruckIcon size={20} />,
       submenu: [
         {
-          name: 'Delivery Partners',
-          path: '/restaurant/delivery/partners',
+          name: 'Register for Restaurant',
+          path: '',
         },
         {
-          name: 'Delivery Zones',
-          path: '/restaurant/delivery/zones',
+          name: 'All registered Restaurants',
+          path: '',
         },
+        
       ],
     },
     {
-      title: 'Staff',
-      icon: <UsersIcon size={20} />,
+      title: 'Vehicle Management',
+      icon: <TruckIcon size={20} />,
       submenu: [
         {
-          name: 'Manage Staff',
-          path: '/restaurant/staff',
+          name: 'Vehicle Registration',
+          path: '',
         },
+        {
+          name: 'Vehicle Details',
+          path: '',
+        },
+        
+      ],
+    },
+    {
+      title: 'orders',
+      icon: <UsersIcon size={20} />,
+      submenu: [
+       
         {
           name: 'Schedules',
           path: '/restaurant/staff/schedules',

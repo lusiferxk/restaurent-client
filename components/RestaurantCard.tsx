@@ -3,6 +3,17 @@
 import React, { useState, Fragment } from 'react'
 import { StarIcon, ClockIcon } from 'lucide-react'
 import { RestaurantDetailsModal } from './RestaurantDetailsModal'
+
+export interface MenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  available: boolean;
+  category?: string;
+  image?: string;
+}
+
 export interface Restaurant {
   id: number
   name: string
@@ -10,7 +21,8 @@ export interface Restaurant {
   rating: number
   deliveryTime: string
   deliveryFee: string
-  categories: string[]
+  categories: string[],
+  menu: MenuItem[]
 }
 interface RestaurantCardProps {
   restaurant: Restaurant

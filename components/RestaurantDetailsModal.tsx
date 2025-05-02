@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XIcon, StarIcon, ClockIcon } from 'lucide-react';
+import { XIcon, StarIcon, ClockIcon, ShoppingCartIcon  } from 'lucide-react';
 import type { Restaurant } from './RestaurantCard';
-import { fetchMenuItems } from '@/utils/fetchMenuItems';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 
 interface MenuItem {
   id: string;
@@ -28,36 +27,24 @@ export function RestaurantDetailsModal({
   isOpen,
   onClose,
 }: RestaurantDetailsModalProps) {
-  const [activeCategory, setActiveCategory] = useState('All')
-  const router = useRouter()
+  const [activeCategory, setActiveCategory] = useState('All');
+  const router = useRouter();
+  const fallbackImage = 'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png';
 
-  const handleExpand = () => {
-    onClose()
-    router.push(`/restaurant/${restaurant.id}`)
-  }
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const menuItems: MenuItem[] = restaurant.menu || [];
 
-  useEffect(() => {
-    if (isOpen) {
-      setLoading(true);
-      fetchMenuItems(String(restaurant.id))
-        .then((data) => setMenuItems(data))
-        .catch((err) => {
-          console.error('Failed to load menu items:', err);
-          setMenuItems([]);
-        })
-        .finally(() => setLoading(false));
-    }
-  }, [restaurant.id, isOpen]);
-
-  const dynamicCategories = ['All', ...Array.from(new Set(menuItems.map(i => i.category).filter(Boolean)))];
+  const dynamicCategories = useMemo(() => {
+    return ['All', ...Array.from(new Set(menuItems.map(i => i.category).filter(Boolean)))];
+  }, [menuItems]);
 
   const filteredItems = activeCategory === 'All'
     ? menuItems
-    : menuItems.filter((item) => item.category === activeCategory);
+    : menuItems.filter(item => item.category === activeCategory);
 
-  const fallbackImage = 'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png';
+  const handleExpand = () => {
+    onClose();
+    router.push(`/restaurant/${restaurant.id}`);
+  };
 
   return (
     <AnimatePresence>
@@ -91,13 +78,11 @@ export function RestaurantDetailsModal({
             </div>
             {/* Content */}
             <div className="px-8 py-6">
-              {/* Header Row */}
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-2xl font-bold">{restaurant.name}</h2>
                 <button
                   onClick={handleExpand}
-                  className="text-purple-600 hover:underline text-base font-medium focus:outline-none"
-                  style={{ minWidth: 0 }}
+                  className="text-purple-600 hover:underline text-base font-medium"
                 >
                   View full page
                 </button>
@@ -118,7 +103,7 @@ export function RestaurantDetailsModal({
 
               <div className="mt-6 mb-8">
                 <div className="flex space-x-4 overflow-x-auto pb-4">
-                  {dynamicCategories.map((category) => (
+                  {dynamicCategories.map(category => (
                     <button
                       key={category}
                       className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
@@ -127,15 +112,15 @@ export function RestaurantDetailsModal({
                           : 'bg-gray-100 hover:bg-gray-200'
                       }`}
                       onClick={() => setActiveCategory(category || 'All')}
-                      >
+                    >
                       {category}
                     </button>
                   ))}
                 </div>
               </div>
-              {/* Menu Items Grid */}
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 overflow-y-auto max-h-[calc(90vh-400px)]">
-                {menuItems.map((item, idx) => (
+                {filteredItems.map((item, idx) => (
                   <motion.div
                     key={item.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -145,9 +130,9 @@ export function RestaurantDetailsModal({
                     className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center hover:bg-purple-50 transition-all cursor-pointer"
                   >
                     <img
-                        src={item.image || fallbackImage}
-                        alt={item.name}
-                      className="w-20 h-20 rounded-lg object-cover mb-3 shadow"
+                      src={item.image || fallbackImage}
+                      alt={item.name}
+                      className="w-full h-20 rounded-lg object-cover mb-3 shadow"
                     />
                     <h3 className="font-semibold text-center mb-1">{item.name}</h3>
                     <p className="text-xs text-gray-600 text-center mb-2">{item.description}</p>
@@ -163,4 +148,4 @@ export function RestaurantDetailsModal({
   );
 }
 
-export default RestaurantDetailsModal
+export default RestaurantDetailsModal;

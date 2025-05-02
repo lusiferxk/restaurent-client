@@ -24,6 +24,7 @@ function RestaurantList() {
           deliveryTime: item.deliveryTime ? `${item.deliveryTime}` : '0',
           deliveryFee: item.deliveryFee ? `LKR ${item.deliveryFee}` : 'LKR 0',
           categories: item.categories || [],
+          menu: item.menu || [],
         }));
 
         setRestaurants(formatted);
