@@ -91,7 +91,7 @@ const AddMenuItem = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6 pb-4 border-b border-gray-200">
+          <h1 className="text-2xl font-bold text-purple-800 mb-6 pb-4 border-b border-gray-200">
             Add New Menu Item
           </h1>
 

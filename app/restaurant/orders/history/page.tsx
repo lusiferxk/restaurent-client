@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react'
 import { Clock, MapPin, Phone, User, Search } from 'lucide-react'
+import DashboardLayout from '../../../adminres/DashboardLayout';
+
 
 // Sample data - replace with actual API call
 const sampleHistory = [
@@ -50,9 +52,10 @@ const OrderHistory = () => {
   )
 
   return (
+    <DashboardLayout>
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Order History</h1>
+        <h1 className="text-2xl font-bold text-purple-800 mb-13">Order History</h1>
         <div className="relative">
           <input
             type="text"
@@ -97,6 +100,7 @@ const OrderHistory = () => {
         ))}
       </div>
     </div>
+    </DashboardLayout>
   )
 }
 

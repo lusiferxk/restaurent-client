@@ -19,6 +19,8 @@ import {
   ChevronLeftIcon,
   PrinterIcon
 } from 'lucide-react'
+import DashboardLayout from '../../adminres/DashboardLayout';
+
 
 // Mock data for the order - in a real application, you would fetch this from an API
 const orderData = {
@@ -136,7 +138,8 @@ const OrderPage = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <DashboardLayout>
+    <div className="p-6  min-h-screen">
       {/* Back button and page title */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
@@ -401,6 +404,7 @@ const OrderPage = () => {
         </div>
       </div>
     </div>
+    </DashboardLayout>
   )
 }
 
