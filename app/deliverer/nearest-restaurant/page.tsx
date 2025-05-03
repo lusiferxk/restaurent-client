@@ -44,12 +44,24 @@ export default function NearestRestaurants() {
   };
 
   const fetchRegisteredRestaurants = async () => {
-    const data = await fetchFromService(
+    const res = await fetchFromService(
       'delivery',
-      '/delivery/registered-restaurants',
+      '/delivery/registered-restaurant',
       'GET'
     );
-    setRegisteredRestaurants(data);
+
+    if (res && typeof res.restaurantId === 'string') {
+      // now fetch full restaurant info from the restaurant service using the ID
+      const restaurant = await fetchFromService(
+        'restaurant',
+        `/restaurants/${res.restaurantId}`,
+        'GET'
+      );
+
+      if (restaurant) {
+        setRegisteredRestaurants([restaurant]); // wrap in array so .map works
+      }
+    }
   };
 
   useEffect(() => {
@@ -66,8 +78,6 @@ export default function NearestRestaurants() {
     };
     fetchAll();
   }, []);
-
-  console.log(registeredId);
 
   const handleRegister = async (restaurantId: string) => {
     setRegistering(restaurantId);
@@ -168,8 +178,8 @@ export default function NearestRestaurants() {
                       {registeredId === r.id
                         ? "Registered"
                         : registering === r.id
-                        ? "Registering..."
-                        : "Register as Delivery"}
+                          ? "Registering..."
+                          : "Register as Delivery"}
                     </button>
                   )}
                 </li>
