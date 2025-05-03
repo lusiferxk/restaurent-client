@@ -68,7 +68,7 @@ const AddMenuItem = () => {
     <DashboardLayout>
       <div className="p-8 max-w-4xl mx-auto">
         <div className="mb-6 flex items-center">
-          <a href="/dashboardres" className="flex items-center text-purple-600 hover:text-purple-800">
+          <a href="/restaurant/view-all-menu-items" className="flex items-center text-purple-600 hover:text-purple-800">
             <ChevronLeft size={20} />
             <span className="ml-1">Back to Menu Items</span>
           </a>
