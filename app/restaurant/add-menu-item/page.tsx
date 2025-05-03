@@ -18,15 +18,15 @@ const AddMenuItem = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
     setMenuItem({
       ...menuItem,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -40,7 +40,7 @@ const AddMenuItem = () => {
         'GET'
       );
 
-      const verifiedRestaurant = restaurantResponse.find((r) => r.verifiedByAdmin);
+      const verifiedRestaurant = restaurantResponse.find((r: any) => r.verifiedByAdmin);
       if (!verifiedRestaurant) throw new Error("No verified restaurant found for this user.");
 
       const restaurantId = verifiedRestaurant.id;
@@ -90,8 +90,8 @@ const AddMenuItem = () => {
           </a>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-2xl font-bold text-purple-800 mb-6 pb-4 border-b border-gray-200">
+        <div className="bg-white shadow-xl rounded-2xl p-8">
+          <h1 className="text-2xl font-extrabold text-purple-800 mb-8 pb-4 border-b border-gray-200 text-center">
             Add New Menu Item
           </h1>
 
@@ -107,7 +107,7 @@ const AddMenuItem = () => {
               value={menuItem.name}
               onChange={handleChange}
               placeholder="Item Name*"
-              className="input border rounded p-2"
+              className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
               required
             />
             <input
@@ -116,7 +116,7 @@ const AddMenuItem = () => {
               value={menuItem.price}
               onChange={handleChange}
               placeholder="Price (Rs)*"
-              className="input border rounded p-2"
+              className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
               required
               min="0"
               step="0.01"
@@ -126,7 +126,7 @@ const AddMenuItem = () => {
               value={menuItem.category}
               onChange={handleChange}
               placeholder="Category (e.g. Rice, Drinks)*"
-              className="input border rounded p-2"
+              className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
               required
             />
             <input
@@ -134,7 +134,7 @@ const AddMenuItem = () => {
               value={menuItem.imageUrl}
               onChange={handleChange}
               placeholder="Image URL*"
-              className="input border rounded p-2"
+              className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
               required
             />
             <textarea
@@ -143,9 +143,9 @@ const AddMenuItem = () => {
               onChange={handleChange}
               placeholder="Description"
               rows={4}
-              className="input border rounded p-2 md:col-span-2"
+              className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500 md:col-span-2"
             />
-            <label className="flex items-center">
+            <label className="flex items-center md:col-span-2">
               <input
                 type="checkbox"
                 name="available"
@@ -169,14 +169,14 @@ const AddMenuItem = () => {
                     available: true
                   })
                 }
-                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center"
+                className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 flex items-center font-semibold"
               >
                 <X size={18} className="mr-2" /> Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                className={`px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-purple-600 to-indigo-500 hover:from-purple-700 hover:to-indigo-600 flex items-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
                 <Save size={18} className="mr-2" /> {isSubmitting ? 'Saving...' : 'Save Item'}
               </button>

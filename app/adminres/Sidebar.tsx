@@ -62,7 +62,7 @@ function Sidebar() {
       submenu: [
         {
           name: 'Restaurant Details',
-          icon: <ListCollapse size={18} />,
+          icon: <NotebookTabs size={18} />,
           path: '/deliverer/nearest-restaurant',
         },
        
@@ -76,7 +76,7 @@ function Sidebar() {
        
         {
           name: 'Vehicle Details',
-          icon: <NotebookTabs size={18} />,
+          icon: <ListCollapse size={18} />,
           path: '/restaurant/vehicle-details',
         },
         {
