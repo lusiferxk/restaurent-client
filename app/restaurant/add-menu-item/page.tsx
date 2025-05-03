@@ -1,19 +1,17 @@
 "use client";
 
 import React, { useState } from 'react';
-import {
-  Save,
-  X,
-  ChevronLeft,
-  Camera
-} from 'lucide-react';
-import DashboardLayout from '../../adminres/DashboardLayout'
+import { Save, X, ChevronLeft } from 'lucide-react';
+import DashboardLayout from '../../adminres/DashboardLayout';
+import { fetchFromService } from '@/utils/fetchFromService';
 
 const AddMenuItem = () => {
   const [menuItem, setMenuItem] = useState({
     name: '',
     price: '',
     description: '',
+    category: '',
+    imageUrl: '',
     available: true
   });
 
@@ -29,24 +27,46 @@ const AddMenuItem = () => {
   };
 
   const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
+    e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user?.id) throw new Error("User not found in localStorage.");
 
-      // Simulate successful submission
-      setMessage({
-        type: 'success',
-        text: 'Menu item added successfully!'
-      });
+      const restaurantResponse = await fetchFromService(
+        'restaurant',
+        `/restaurants/user/${user.id}`,
+        'GET'
+      );
 
-      // Reset form
+      const verifiedRestaurant = restaurantResponse.find((r) => r.verifiedByAdmin);
+      if (!verifiedRestaurant) throw new Error("No verified restaurant found for this user.");
+
+      const restaurantId = verifiedRestaurant.id;
+
+      await fetchFromService(
+        'restaurant',
+        '/menu/add',
+        'POST',
+        [
+          {
+            ...menuItem,
+            userId: user.id,
+            restaurantId,
+            price: parseFloat(menuItem.price)
+          }
+        ]
+      );
+
+      setMessage({ type: 'success', text: 'Menu item added successfully!' });
+
       setMenuItem({
         name: '',
         price: '',
         description: '',
+        category: '',
+        imageUrl: '',
         available: true
       });
     } catch (error) {
@@ -56,11 +76,7 @@ const AddMenuItem = () => {
       });
     } finally {
       setIsSubmitting(false);
-
-      // Clear message after 3 seconds
-      setTimeout(() => {
-        setMessage({ type: '', text: '' });
-      }, 3000);
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     }
   };
 
@@ -80,111 +96,92 @@ const AddMenuItem = () => {
           </h1>
 
           {message.text && (
-            <div className={`mb-6 p-4 rounded-md ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-              }`}>
+            <div className={`mb-6 p-4 rounded-md ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
               {message.text}
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="col-span-2">
-              <div className="flex justify-center items-center border-2 border-dashed border-gray-300 rounded-lg h-64 mb-4 relative cursor-pointer hover:border-purple-400 transition-colors">
-                <div className="text-center">
-                  <Camera size={48} className="mx-auto text-gray-400 mb-2" />
-                  <p className="text-gray-500">Click to upload image</p>
-                  <p className="text-sm text-gray-400 mt-1">JPG, PNG or GIF (max. 2MB)</p>
-                </div>
-                <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-              </div>
-            </div>
-
-            <div className="col-span-2 md:col-span-1">
-              <label className="block text-gray-700 font-medium mb-2">
-                Item Name*
-              </label>
+          <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
+            <input
+              name="name"
+              value={menuItem.name}
+              onChange={handleChange}
+              placeholder="Item Name*"
+              className="input border rounded p-2"
+              required
+            />
+            <input
+              name="price"
+              type="number"
+              value={menuItem.price}
+              onChange={handleChange}
+              placeholder="Price (Rs)*"
+              className="input border rounded p-2"
+              required
+              min="0"
+              step="0.01"
+            />
+            <input
+              name="category"
+              value={menuItem.category}
+              onChange={handleChange}
+              placeholder="Category (e.g. Rice, Drinks)*"
+              className="input border rounded p-2"
+              required
+            />
+            <input
+              name="imageUrl"
+              value={menuItem.imageUrl}
+              onChange={handleChange}
+              placeholder="Image URL*"
+              className="input border rounded p-2"
+              required
+            />
+            <textarea
+              name="description"
+              value={menuItem.description}
+              onChange={handleChange}
+              placeholder="Description"
+              rows={4}
+              className="input border rounded p-2 md:col-span-2"
+            />
+            <label className="flex items-center">
               <input
-                type="text"
-                name="name"
-                value={menuItem.name}
+                type="checkbox"
+                name="available"
+                checked={menuItem.available}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="e.g. Chicken Burger"
-                required
+                className="h-5 w-5 text-purple-600"
               />
-            </div>
-
-            <div className="col-span-2 md:col-span-1">
-              <label className="block text-gray-700 font-medium mb-2">
-                Price (Rs)*
-              </label>
-              <input
-                type="number"
-                name="price"
-                value={menuItem.price}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="e.g. 750.00"
-                min="0"
-                step="0.01"
-                required
-              />
-            </div>
-
-            <div className="col-span-2">
-              <label className="block text-gray-700 font-medium mb-2">
-                Description
-              </label>
-              <textarea
-                name="description"
-                value={menuItem.description}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="Describe your menu item"
-                rows={4}
-              />
-            </div>
-
-            <div className="col-span-2">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="available"
-                  checked={menuItem.available}
-                  onChange={handleChange}
-                  className="h-5 w-5 text-purple-600 focus:ring-purple-500 rounded"
-                />
-                <span className="ml-2 text-gray-700">Available for ordering</span>
-              </label>
-            </div>
+              <span className="ml-2">Available</span>
+            </label>
 
             <div className="col-span-2 flex justify-end space-x-4 pt-4 border-t border-gray-200">
               <button
                 type="button"
-                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center"
-                onClick={() => {
+                onClick={() =>
                   setMenuItem({
                     name: '',
                     price: '',
                     description: '',
+                    category: '',
+                    imageUrl: '',
                     available: true
-                  });
-                }}
+                  })
+                }
+                className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center"
               >
-                <X size={18} className="mr-2" />
-                Cancel
+                <X size={18} className="mr-2" /> Cancel
               </button>
-
               <button
-                type="button"
+                type="submit"
                 disabled={isSubmitting}
-                onClick={handleSubmit}
                 className={`px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                <Save size={18} className="mr-2" />
-                {isSubmitting ? 'Saving...' : 'Save Item'}
+                <Save size={18} className="mr-2" /> {isSubmitting ? 'Saving...' : 'Save Item'}
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </DashboardLayout>
