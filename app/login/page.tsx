@@ -104,7 +104,7 @@ export default function LoginPage() {
               transition={{ delay: 0.4 }}
               className="text-center"
             >
-              <div className="flex justify-center mb-6">
+              {/* <div className="flex justify-center mb-6">
                 <div className="p-3 rounded-full bg-white shadow-lg">
                   <UserIcon size={32} className="text-purple-600" />
                 </div>
@@ -115,7 +115,7 @@ export default function LoginPage() {
               </h2>
               <p className="mt-2 text-sm text-gray-600">
                 Sign in to continue your culinary journey
-              </p>
+              </p> */}
 
               {error && (
                 <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-md">
@@ -127,7 +127,7 @@ export default function LoginPage() {
                 <div className="bg-white py-8 px-6 shadow-xl rounded-2xl sm:px-10 border border-gray-100">
                   <form className="space-y-6" onSubmit={handleSubmit}>
                     <div>
-                      <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="username" className="block text-left text-sm font-medium text-gray-700 mb-1">
                         Username
                       </label>
                       <div className="relative">
@@ -147,7 +147,7 @@ export default function LoginPage() {
                     </div>
 
                     <div>
-                      <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="password" className="block text-left  text-sm font-medium text-gray-700 mb-1">
                         Password
                       </label>
                       <div className="relative">
