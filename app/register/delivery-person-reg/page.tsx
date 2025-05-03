@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation'
 import { BikeIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { fetchFromService } from '@/utils/fetchFromService'
-import { CloudinaryUpload } from '@/components/CloudinaryUpload'
-import axios from 'axios'
 
 export default function DeliveryPersonRegistration() {
   const [formData, setFormData] = useState({
@@ -41,15 +39,23 @@ export default function DeliveryPersonRegistration() {
     setError(null)
 
     try {
-      await axios.post(`https://user-service-f124.onrender.com/api/auth/signup/deliveryperson`, formData, {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-      })
+      const response = await fetchFromService(
+        'user',
+        '/api/auth/signup/deliveryperson',
+        'POST',
+        formData
+      )
 
-      // router.push('/dashboarddel')
-      router.push('/')
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Registration failed.'
+      if (response?.user && response?.token) {
+        const userWithCity = { ...response.user, city: formData.city }
+        localStorage.setItem('user', JSON.stringify(userWithCity))
+        localStorage.setItem('authToken', response.token)
+        router.push('/dashboard/dashboardres')
+      } else {
+        throw new Error('Invalid response from server')
+      }
+    } catch (err: any) {
+      const msg = err.message || 'Registration failed.'
       setError(msg)
     } finally {
       setIsSubmitting(false)
@@ -94,7 +100,7 @@ export default function DeliveryPersonRegistration() {
                 {DISTRICTS.map(city => <option key={city} value={city}>{city}</option>)}
               </select>
 
-              <CloudinaryUpload label="Profile Image" required onUploadSuccess={(url) => setFormData({ ...formData, profileImg: url })} />
+              <input className="input border rounded p-2" placeholder="Profile Image URL" required value={formData.profileImg} onChange={(e) => setFormData({ ...formData, profileImg: e.target.value })} />
 
               <div className="grid grid-cols-2 gap-4">
                 <input className="input border rounded p-2" placeholder="Vehicle Number" required value={formData.vehicleNumber} onChange={(e) => setFormData({ ...formData, vehicleNumber: e.target.value })} />
@@ -105,11 +111,14 @@ export default function DeliveryPersonRegistration() {
               </div>
 
               <input className="input border rounded p-2" placeholder="License Number" required value={formData.licenseNumber} onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })} />
+              <input className="input border rounded p-2" placeholder="Vehicle Image URL" required value={formData.vehicleImg} onChange={(e) => setFormData({ ...formData, vehicleImg: e.target.value })} />
+              <input className="input border rounded p-2" placeholder="Vehicle Documents URL" required value={formData.vehicleDocuments} onChange={(e) => setFormData({ ...formData, vehicleDocuments: e.target.value })} />
 
-              <CloudinaryUpload label="Vehicle Image" required onUploadSuccess={(url) => setFormData({ ...formData, vehicleImg: url })} />
-              <CloudinaryUpload label="Vehicle Documents" required onUploadSuccess={(url) => setFormData({ ...formData, vehicleDocuments: url })} />
-
-              <button type="submit" disabled={isSubmitting} className={`w-full py-2 px-4 rounded-md text-white font-medium ${isSubmitting ? 'bg-purple-400' : 'bg-purple-600 hover:bg-purple-700'}`}>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full py-2 px-4 rounded-md text-white font-medium ${isSubmitting ? 'bg-purple-400' : 'bg-purple-600 hover:bg-purple-700'}`}
+              >
                 {isSubmitting ? 'Submitting...' : 'Register Now'}
               </button>
             </form>

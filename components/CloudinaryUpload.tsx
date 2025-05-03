@@ -20,10 +20,10 @@ export function CloudinaryUpload({ onUploadSuccess, label, required = false, cla
       <CldUploadWidget
         uploadPreset="tastebite"
         onUpload={(result: any) => {
-          if (result?.info?.secure_url) {
+          if (result?.event === "success" && result?.info?.secure_url) {
             onUploadSuccess(result.info.secure_url);
+            setIsUploading(false);
           }
-          setIsUploading(false);
         }}
         onOpen={() => setIsUploading(true)}
       >
