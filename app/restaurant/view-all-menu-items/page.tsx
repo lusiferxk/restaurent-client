@@ -14,12 +14,15 @@ import {
   Camera,
   DollarSign
 } from 'lucide-react';
+import DashboardLayout from '../../adminres/DashboardLayout';
+
 
 // View Details Modal Component
 const ViewDetailsModal = ({ item, onClose, onEdit }) => {
   if (!item) return null;
   
   return (
+    <DashboardLayout>
     <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
@@ -104,6 +107,7 @@ const ViewDetailsModal = ({ item, onClose, onEdit }) => {
         </div>
       </div>
     </div>
+    </DashboardLayout>
   );
 };
 
@@ -163,6 +167,7 @@ const EditItemModal = ({ item, onClose, onSave }) => {
   if (!item) return null;
   
   return (
+    <DashboardLayout>
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
@@ -301,6 +306,7 @@ const EditItemModal = ({ item, onClose, onSave }) => {
         </div>
       </div>
     </div>
+    </DashboardLayout>
   );
 };
 
@@ -431,6 +437,7 @@ const ViewAllMenuItems = () => {
   }, [dropdownOpen]);
   
   return (
+    <DashboardLayout>
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Menu Items</h1>
@@ -586,6 +593,7 @@ const ViewAllMenuItems = () => {
         />
       )}
     </div>
+    </DashboardLayout>
   );
 };
 

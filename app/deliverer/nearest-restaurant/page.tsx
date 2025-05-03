@@ -9,6 +9,7 @@ interface Restaurant {
   name: string;
   city: string;
   verifiedByAdmin: boolean;
+  image?: string;
 }
 
 export default function NearestRestaurants() {
@@ -115,10 +116,13 @@ export default function NearestRestaurants() {
     setMessage('');
   };
 
+  // Add a fallback image for restaurants
+  const fallbackImage = 'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png';
+
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto mt-8">
-        <div className="flex justify-center mb-6 space-x-4">
+      <div className="max-w-5xl mx-auto mt-8">
+        <div className="flex justify-start mb-15 space-x-4">
           <button
             className={`px-4 py-2 rounded ${!showRegistered ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
             onClick={handleShowNearest}
@@ -133,9 +137,7 @@ export default function NearestRestaurants() {
           </button>
         </div>
 
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          {showRegistered ? 'All Registered Restaurants' : 'Nearest Restaurants'}
-        </h2>
+      
 
         {loading ? (
           <div className="text-center py-8">Loading...</div>
@@ -155,35 +157,48 @@ export default function NearestRestaurants() {
                 <div className="text-center py-8 text-gray-500">No restaurants found.</div>
               )}
 
-            <ul>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {(showRegistered ? registeredRestaurants : restaurants).map((r) => (
-                <li key={r.id} className="mb-6 p-4 border rounded shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <div className="font-semibold text-lg">{r.name}</div>
-                    <div className="text-gray-600">City: {r.city}</div>
-                    <div className="text-sm mt-1">
-                      Status:{" "}
-                      <span className={r.verifiedByAdmin ? "text-green-600" : "text-yellow-600"}>
-                        {r.verifiedByAdmin ? "Verified" : "Pending"}
-                      </span>
-                    </div>
+                <div
+                  key={r.id}
+                  className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow"
+                >
+                  <div className="relative">
+                    <img
+                      src={r.image || fallbackImage}
+                      alt={r.name}
+                      className="w-full h-36 object-cover"
+                    />
+                    <span className={`absolute top-2 right-2 bg-white/90 text-xs font-semibold px-2 py-1 rounded-full shadow ${r.verifiedByAdmin ? 'text-green-700' : 'text-yellow-700'}`}>
+                      {r.verifiedByAdmin ? 'Verified' : 'Pending'}
+                    </span>
                   </div>
-                  {!showRegistered && (
-                    <button
-                      className="mt-4 sm:mt-0 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50"
-                      disabled={registering === r.id || registeredId === r.id}
-                      onClick={() => handleRegister(r.id)}
-                    >
-                      {registeredId === r.id
-                        ? "Registered"
-                        : registering === r.id
-                          ? "Registering..."
-                          : "Register as Delivery"}
-                    </button>
-                  )}
-                </li>
+                  <div className="p-3">
+                    <div className="font-bold text-base mb-1 text-gray-800">{r.name}</div>
+                    <div className="flex items-center text-gray-600 text-xs mb-1">
+                      <span className="mr-2">{r.city}</span>
+                    </div>
+                    <div className="flex items-center text-gray-500 text-xs mb-2">
+                      <span>Status:</span>
+                      <span className={`ml-1 font-semibold ${r.verifiedByAdmin ? 'text-green-600' : 'text-yellow-600'}`}>{r.verifiedByAdmin ? 'Verified' : 'Pending'}</span>
+                    </div>
+                    {!showRegistered && (
+                      <button
+                        className="mt-2 px-3 py-1.5 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors w-full disabled:opacity-50 text-xs"
+                        disabled={registering === r.id || registeredId === r.id}
+                        onClick={() => handleRegister(r.id)}
+                      >
+                        {registeredId === r.id
+                          ? "Registered"
+                          : registering === r.id
+                            ? "Registering..."
+                            : "Register as Delivery"}
+                      </button>
+                    )}
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           </>
         )}
       </div>

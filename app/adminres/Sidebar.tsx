@@ -46,11 +46,11 @@ function Sidebar() {
           name: 'Order History',
           path: '/restaurant/orders/history',
         },
-        {
-          name: 'Create cart',
-          icon: <ListIcon size={18} />,
-          path: '/restaurant/create-cart',
-        },
+        // {
+        //   name: 'Create cart',
+        //   icon: <ListIcon size={18} />,
+        //   path: '/restaurant/create-cart',
+        // },
       ],
     },
     {
@@ -58,13 +58,10 @@ function Sidebar() {
       icon: <TruckIcon size={20} />,
       submenu: [
         {
-          name: 'Register for Restaurant',
+          name: 'Restaurant Details',
           path: '/deliverer/nearest-restaurant',
         },
-        {
-          name: 'All registered Restaurants',
-          path: '',
-        },
+       
 
       ],
     },
@@ -135,8 +132,8 @@ function Sidebar() {
 
   return (
 
-    <div className="flexw-64 bg-white h-full shadow-lg overflow-y-auto ">
-      <div className="p-4 border-b border-purple-800">
+    <div className="flexw-64 bg-white h-full shadow-lg overflow-y-auto">
+      <div className="p-4  border-b border-purple-400">
         <div className="flex items-center">
           <Link
             href="/">
@@ -148,7 +145,7 @@ function Sidebar() {
           <span className="text-xl font-semibold text-purple-500">Restaurant Portal</span>
         </div>
       </div>
-      <nav className="p-4">
+      <nav className="p-4 bg-purple-50">
         {menuItems.map((item, index) => (
           <div key={index} className="mb-4">
             <div className="flex items-center px-4 py-2.5 text-purple-600 rounded-lg hover:bg-purple-50 cursor-pointer">
@@ -173,7 +170,7 @@ function Sidebar() {
             )}
           </div>
         ))}
-        <div className="mt-auto pt-4 border-t">
+        <div className="mt-auto pt-4 border-t border-purple-400">
           <button
             className="flex items-center w-full px-4 py-2.5 text-red-600 rounded-lg hover:bg-red-50"
             onClick={() => logout()}
