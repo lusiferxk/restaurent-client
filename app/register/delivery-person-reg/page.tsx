@@ -10,6 +10,7 @@ export default function DeliveryPersonRegistration() {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    confirmPassword: "",
     email: "",
     firstName: "",
     lastName: "",
@@ -25,6 +26,11 @@ export default function DeliveryPersonRegistration() {
     vehicleDocuments: "",
     licenseNumber: "",
   });
+
+  const [passwordError, setPasswordError] = useState("");
+  const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const DISTRICTS = [
     "Colombo",
@@ -55,21 +61,35 @@ export default function DeliveryPersonRegistration() {
   ];
   const VEHICLE_TYPES = ["Bicycle", "Motorcycle", "Car", "Van"];
 
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+  const validatePasswords = () => {
+    if (formData.password !== formData.confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return false;
+    }
+    setPasswordError("");
+    return true;
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate passwords match
+    if (!validatePasswords()) {
+      return;
+    }
+    
     setIsSubmitting(true);
     setError(null);
 
     try {
+      // Remove confirmPassword from data sent to API
+      const { confirmPassword, ...dataToSubmit } = formData;
+      
       const response = await fetchFromService(
         "user",
         "/api/auth/signup/deliveryperson",
         "POST",
-        formData
+        dataToSubmit
       );
 
       if (response?.user && response?.token) {
@@ -80,7 +100,7 @@ export default function DeliveryPersonRegistration() {
       } else {
         throw new Error("Invalid response from server");
       }
-    } catch (err: any) {
+    } catch (err) {
       const msg = err.message || "Registration failed.";
       setError(msg);
     } finally {
@@ -99,8 +119,12 @@ export default function DeliveryPersonRegistration() {
           <div className="w-full flex flex-col items-center justify-center text-center">
             <BikeIcon size={100} className="text-purple-200 opacity-50 mb-6" />
             <div className="text-4xl font-bold mb-4">tasteBite</div>
-            <h2 className="text-3xl font-bold mb-6">Join Our Delivery Network</h2>
-            <p className="text-lg text-purple-100">Become a delivery partner and earn money on your own schedule.</p>
+            <h2 className="text-3xl font-bold mb-6">
+              Join Our Delivery Network
+            </h2>
+            <p className="text-lg text-purple-100">
+              Become a delivery partner and earn money on your own schedule.
+            </p>
           </div>
         </div>
 
@@ -118,29 +142,27 @@ export default function DeliveryPersonRegistration() {
                   {error}
                 </div>
               )}
-                <input
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
-                  placeholder="Username"
-                  required
-                  value={formData.username}
-                  onChange={(e) =>
-                    setFormData({ ...formData, username: e.target.value })
-                  }
-                />
-                 <input
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
-                  type="email"
-                  placeholder="Email"
-                  required
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
+              <input
+                className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
+                placeholder="Username"
+                required
+                value={formData.username}
+                onChange={(e) =>
+                  setFormData({ ...formData, username: e.target.value })
+                }
+              />
+              <input
+                className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
+                type="email"
+                placeholder="Email"
+                required
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+              />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                
-                
-                 <input
+                <input
                   className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
                   placeholder="NIC"
                   required
@@ -149,7 +171,7 @@ export default function DeliveryPersonRegistration() {
                     setFormData({ ...formData, nic: e.target.value })
                   }
                 />
-               
+
                 <input
                   className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
                   placeholder="Phone Number"
@@ -177,7 +199,7 @@ export default function DeliveryPersonRegistration() {
                     setFormData({ ...formData, lastName: e.target.value })
                   }
                 />
-               
+
                 <input
                   className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
                   type="number"
@@ -287,7 +309,9 @@ export default function DeliveryPersonRegistration() {
                   setFormData({ ...formData, vehicleDocuments: e.target.value })
                 }
               />
-              <input
+              
+              <div className="space-y-4">
+                <input
                   className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
                   type="password"
                   placeholder="Password"
@@ -297,6 +321,26 @@ export default function DeliveryPersonRegistration() {
                     setFormData({ ...formData, password: e.target.value })
                   }
                 />
+                
+                <div>
+                  <input
+                    className={`block w-full px-4 py-3 border rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500 ${
+                      passwordError ? "border-red-500" : "border-gray-300"
+                    }`}
+                    type="password"
+                    placeholder="Confirm Password"
+                    required
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      setFormData({ ...formData, confirmPassword: e.target.value })
+                    }
+                    onBlur={validatePasswords}
+                  />
+                  {passwordError && (
+                    <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+                  )}
+                </div>
+              </div>
 
               <button
                 type="submit"
