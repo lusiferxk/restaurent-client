@@ -147,12 +147,13 @@ export function RestaurantRegistration() {
       <div className="flex min-h-screen">
         <motion.div initial={{ x: -50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="hidden lg:flex lg:flex-1 bg-purple-700 text-white px-12 flex-col justify-center">
           <div className="max-w-md mx-auto">
+          <div className="mt-8">
+              <UtensilsIcon size={150} className="text-purple-200 opacity-50" />
+            </div>
             <div className="text-4xl font-bold mb-4">tasteBite</div>
             <h2 className="text-3xl font-bold mb-6">Partner with Us</h2>
             <p className="text-lg text-purple-100">Join our platform and reach more customers. Grow your business with our delivery network and easy-to-use restaurant management system.</p>
-            <div className="mt-8">
-              <UtensilsIcon size={120} className="text-purple-200 opacity-50" />
-            </div>
+           
           </div>
         </motion.div>
 
@@ -164,7 +165,7 @@ export function RestaurantRegistration() {
               transition={{ delay: 0.4 }}
               className="bg-white shadow-xl rounded-2xl overflow-hidden"
             >
-              <div className="p-8">
+              <div className="p-8 max-h-[80vh] overflow-y-auto">
                 <motion.h2 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="text-3xl font-extrabold text-purple-900 text-center mb-8">
                   {step === 'owner' ? 'Register as Restaurant Owner' : 'Register your Restaurant'}
                 </motion.h2>

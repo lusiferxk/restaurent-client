@@ -92,32 +92,26 @@ export default function DeliveryPersonRegistration() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-gray-50"
+      className="max-h-screen bg-gray-50"
     >
-      <div className="flex min-h-screen">
-        <div className="flex lg:flex lg:flex-1 bg-purple-700 text-white px-8 flex-col">
-          <div className="flex max-w-md ml-17 mt-59">
-            <BikeIcon size={100} className="text-purple-200 opacity-50" />
-            <div className="text-4xl font-bold mt-14 ">tasteBite</div>
-          </div>
-          <h2 className="text-3xl font-bold mb-6">Join Our Delivery Network</h2>
-          <p className="text-lg text-purple-100">
-            Become a delivery partner and earn money on your own schedule.
-          </p>
-          <div className="mt-8">
-            {/* <BikeIcon size={120} className="text-purple-200 opacity-50" />
-            </div> */}
+      <div className="flex min-h-screen max-h-screen">
+        <div className="hidden lg:flex flex-1 bg-purple-700 text-white px-12 min-h-screen max-h-screen items-center justify-center">
+          <div className="w-full flex flex-col items-center justify-center text-center">
+            <BikeIcon size={100} className="text-purple-200 opacity-50 mb-6" />
+            <div className="text-4xl font-bold mb-4">tasteBite</div>
+            <h2 className="text-3xl font-bold mb-6">Join Our Delivery Network</h2>
+            <p className="text-lg text-purple-100">Become a delivery partner and earn money on your own schedule.</p>
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 overflow-y-auto">
+        <div className="flex-1 flex items-center max-h-screen justify-center px-4 sm:px-6 lg:px-8 py-1 overflow-y-auto">
           <div className="max-w-2xl w-full">
-            <h2 className="text-3xl font-extrabold text-purple-900 text-center mb-8">
+            <h2 className="text-3xl font-extrabold text-purple-900 text-center mb-5">
               Delivery Partner Registration
             </h2>
             <form
               onSubmit={handleSubmit}
-              className="bg-white shadow-xl rounded-2xl p-8 space-y-6"
+              className="bg-white shadow-xl rounded-2xl p-8 space-y-6 max-h-[80vh] overflow-y-auto"
             >
               {error && (
                 <div className="p-4 bg-red-50 text-red-700 rounded-md">
