@@ -51,7 +51,6 @@ export default function NearestRestaurants() {
     );
 
     if (res && typeof res.restaurantId === 'string') {
-      // now fetch full restaurant info from the restaurant service using the ID
       const restaurant = await fetchFromService(
         'restaurant',
         `/restaurants/${res.restaurantId}`,
@@ -59,7 +58,7 @@ export default function NearestRestaurants() {
       );
 
       if (restaurant) {
-        setRegisteredRestaurants([restaurant]); // wrap in array so .map works
+        setRegisteredRestaurants([restaurant]); 
       }
     }
   };
