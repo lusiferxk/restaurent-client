@@ -25,7 +25,11 @@ export default function LoginPage() {
       const response = await fetchFromService("user", "/api/auth/login", "POST", {
         username,
         password
-      });
+      }, false); // Set requireAuth to false for login
+
+      if (!response || !response.token) {
+        throw new Error('Invalid response from server');
+      }
 
       login(
         {
@@ -49,9 +53,15 @@ export default function LoginPage() {
         router.push('/');
       }
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.')
-    }
-    finally {
+      console.error('Login error:', err);
+      if (err.message.includes('Invalid response format')) {
+        setError('Server error: Please try again later');
+      } else if (err.message.includes('Service responded with status 401')) {
+        setError('Invalid username or password');
+      } else {
+        setError(err.message || 'Login failed. Please check your credentials.');
+      }
+    } finally {
       setLoading(false);
     }
   }

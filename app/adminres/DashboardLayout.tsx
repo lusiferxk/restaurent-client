@@ -100,9 +100,11 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   }
 
-  const hasAtLeastOneVerified = restaurants.some((r) => r.verifiedByAdmin);
+  // Check if user has any restaurants that are not verified
+  const hasUnverifiedRestaurants = restaurants.some((r) => !r.verifiedByAdmin);
+  const hasVerifiedRestaurants = restaurants.some((r) => r.verifiedByAdmin);
 
-  if (isOwner && !hasAtLeastOneVerified) {
+  if (isOwner && hasUnverifiedRestaurants && !hasVerifiedRestaurants) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-100 text-center px-4">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md">

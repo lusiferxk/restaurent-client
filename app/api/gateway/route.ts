@@ -4,6 +4,7 @@ const SERVICES = {
   restaurant: 'https://restaurant-service-ilaj.onrender.com',
   user: 'https://user-service-f124.onrender.com',
   order: 'https://order-service-96vx.onrender.com',
+  delivery: 'https://delivery-service-s468.onrender.com',
 };
 
 const RATE_LIMIT = {
@@ -113,4 +114,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+} 

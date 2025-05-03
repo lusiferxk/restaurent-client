@@ -5,6 +5,7 @@ import SockJS from 'sockjs-client';
 import { format, parseISO } from 'date-fns';
 import { jwtDecode } from 'jwt-decode';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocalStorage } from '@/utils/useLocalStorage';
 
 interface Notification {
   id: number;
@@ -31,7 +32,7 @@ interface CustomJwtPayload {
 }
 
 export default function NotificationModel() {
-  const token = localStorage.getItem("authToken");
+  const [token] = useLocalStorage<string | null>("authToken", null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [orderNotifications, setOrderNotifications] = useState<OrderNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -51,6 +52,7 @@ export default function NotificationModel() {
         setUserId(decodedToken.userId);
       } catch (error) {
         console.error('Invalid token:', error);
+        setError('Invalid authentication token');
       }
     }
   }, [token]);
