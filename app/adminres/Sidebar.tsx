@@ -78,9 +78,8 @@ function Sidebar() {
         },
         {
           name: 'Vehicle Details',
-          path: '',
+          path: '/restaurant/vehicle-details',
         },
-
       ],
     },
     {

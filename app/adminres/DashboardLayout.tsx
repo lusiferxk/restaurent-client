@@ -127,8 +127,7 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
       <main className="flex-1 overflow-y-auto p-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
+        {/* <div className="flex items-center justify-between mb-6">
           {isOwner && (
             <select
               value={selectedRestaurantId || ""}
@@ -144,7 +143,7 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
                 ))}
             </select>
           )}
-        </div>
+        </div> */}
 
         {children}
       </main>
