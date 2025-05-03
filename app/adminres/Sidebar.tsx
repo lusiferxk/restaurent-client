@@ -72,13 +72,14 @@ function Sidebar() {
       title: 'Vehicle Management',
       icon: <TruckIcon size={20} />,
       submenu: [
-        {
-          name: 'Vehicle Registration',
-          path: '',
-        },
+       
         {
           name: 'Vehicle Details',
           path: '/restaurant/vehicle-details',
+        },
+        {
+          name: 'Update Vehicle Details',
+          path: '/restaurant/update-vehicle-details',
         },
       ],
     },
