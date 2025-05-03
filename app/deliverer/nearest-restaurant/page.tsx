@@ -5,7 +5,7 @@ import DashboardLayout from '../../adminres/DashboardLayout'
 const page = () => {
   return (
     <DashboardLayout>
-      <RestaurantList />
+        <RestaurantList />
     </DashboardLayout>
   )
 }

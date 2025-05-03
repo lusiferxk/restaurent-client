@@ -9,7 +9,7 @@ export async function fetchFromService(service: string, path: string, method = "
   if (typeof window !== 'undefined' && requireAuth) {
     const token = localStorage.getItem('authToken');
     if (token) {
-      payload.token = token; // Send as body param
+      payload.token = token; 
     }
   }
 
