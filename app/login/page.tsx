@@ -43,6 +43,8 @@ export default function LoginPage() {
         router.push('/dashboard/dashboardres');
       } else if (roles.includes('ROLE_ADMIN')) {
         router.push('/admin');
+      } else if (roles.includes('ROLE_DELIVERY_PERSON')) {
+        router.push('/dashboard/dashboardres');
       } else {
         router.push('/');
       }
@@ -191,8 +193,8 @@ export default function LoginPage() {
                         type="submit"
                         disabled={loading}
                         className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white ${loading
-                            ? 'bg-purple-400 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'
+                          ? 'bg-purple-400 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'
                           } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500`}
                       >
                         {loading ? 'Signing in...' : 'Sign in'}

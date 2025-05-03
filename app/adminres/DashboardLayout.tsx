@@ -31,13 +31,16 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const selectedRestaurant = restaurants.find((r) => r.id === selectedRestaurantId);
 
-  if (user && !user.roles.includes("ROLE_RESTAURANT_OWNER")) {
+  const isOwner = user?.roles.includes("ROLE_RESTAURANT_OWNER");
+  const isDelivery = user?.roles.includes("ROLE_DELIVERY_PERSON");
+
+  if (user && !isOwner && !isDelivery) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100 text-center px-4">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md">
           <h2 className="text-2xl font-semibold text-red-600 mb-4">Access Denied</h2>
           <p className="text-gray-700 mb-4">
-            This dashboard is restricted to restaurant owners only.
+            This dashboard is restricted to restaurant owners and delivery personnel only.
           </p>
           <button
             onClick={() => router.push("/")}
@@ -82,10 +85,12 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
       }
     };
 
-    if (user?.id) {
+    if (user?.id && isOwner) {
       fetchRestaurants();
+    } else {
+      setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, isOwner]);
 
   if (loading) {
     return (
@@ -97,7 +102,7 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const hasAtLeastOneVerified = restaurants.some((r) => r.verifiedByAdmin);
 
-  if (!hasAtLeastOneVerified) {
+  if (isOwner && !hasAtLeastOneVerified) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-100 text-center px-4">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md">
@@ -122,19 +127,21 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
       <main className="flex-1 overflow-y-auto p-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
-          <select
-            value={selectedRestaurantId || ""}
-            onChange={(e) => setSelectedRestaurantId(e.target.value)}
-            className="px-4 py-2 border rounded-md bg-white shadow-sm text-sm"
-          >
-            {restaurants
-              .filter((r) => r.verifiedByAdmin)
-              .map((restaurant) => (
-                <option key={restaurant.id} value={restaurant.id}>
-                  {restaurant.name}
-                </option>
-              ))}
-          </select>
+          {isOwner && (
+            <select
+              value={selectedRestaurantId || ""}
+              onChange={(e) => setSelectedRestaurantId(e.target.value)}
+              className="px-4 py-2 border rounded-md bg-white shadow-sm text-sm"
+            >
+              {restaurants
+                .filter((r) => r.verifiedByAdmin)
+                .map((restaurant) => (
+                  <option key={restaurant.id} value={restaurant.id}>
+                    {restaurant.name}
+                  </option>
+                ))}
+            </select>
+          )}
         </div>
 
         {children}

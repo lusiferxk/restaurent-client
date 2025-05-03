@@ -6,6 +6,7 @@ import { BikeIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { fetchFromService } from '@/utils/fetchFromService'
 import { CloudinaryUpload } from '@/components/CloudinaryUpload'
+import axios from 'axios'
 
 export default function DeliveryPersonRegistration() {
   const [formData, setFormData] = useState({
@@ -40,11 +41,13 @@ export default function DeliveryPersonRegistration() {
     setError(null)
 
     try {
-      await fetchFromService('user', '/api/auth/signup/deliveryperson', 'POST', {
-        ...formData
+      await axios.post(`https://user-service-f124.onrender.com/api/auth/signup/deliveryperson`, formData, {
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true,
       })
 
-      router.push('/dashboarddel')
+      // router.push('/dashboarddel')
+      router.push('/')
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Registration failed.'
       setError(msg)

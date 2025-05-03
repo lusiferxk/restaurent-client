@@ -1,25 +1,27 @@
-export async function fetchFromService(service: string, path: string, method: "GET" | "POST" = "POST", body = {}) {
-  const headers: any = {
-    'Content-Type': 'application/json',
+export async function fetchFromService(service: string, path: string, method = "POST", body = {}, requireAuth = true) {
+  const payload: any = {
+    service,
+    path,
+    method,
+    body
   };
 
-  // Get token from localStorage
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && requireAuth) {
     const token = localStorage.getItem('authToken');
     if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      payload.token = token; // Send as body param
     }
   }
 
   const response = await fetch('/api/gateway', {
     method: 'POST',
-    headers,
-    body: JSON.stringify({ service, path, method, body }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(errorData.error || 'Service error');
+    throw new Error(errorData.error || `Service responded with status ${response.status}`);
   }
 
   return response.json();

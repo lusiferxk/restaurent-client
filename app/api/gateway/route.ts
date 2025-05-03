@@ -1,25 +1,21 @@
 import { NextResponse } from 'next/server';
 
-// Service registry
 const SERVICES = {
   restaurant: 'https://restaurant-service-ilaj.onrender.com',
   user: 'https://user-service-f124.onrender.com',
   order: 'https://order-service-96vx.onrender.com',
 };
 
-// Rate limiting configuration
 const RATE_LIMIT = {
   windowMs: 15 * 60 * 1000,
   max: 100,
 };
 
-// Circuit breaker configuration
 const CIRCUIT_BREAKER = {
   failureThreshold: 3,
   resetTimeout: 30000,
 };
 
-// In-memory stores
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
 const circuitBreakerState = new Map<string, {
   failures: number;
@@ -29,9 +25,8 @@ const circuitBreakerState = new Map<string, {
 
 export async function POST(request: Request) {
   try {
-    const { service, path, method = 'POST', body = null } = await request.json();
+    const { service, path, method = 'POST', body = null, token = null } = await request.json();
 
-    // Validate service
     if (!SERVICES[service as keyof typeof SERVICES]) {
       return NextResponse.json({ error: 'Invalid service' }, { status: 400 });
     }
@@ -69,15 +64,16 @@ export async function POST(request: Request) {
 
     try {
       const url = `${SERVICES[service as keyof typeof SERVICES]}${path}`;
-      
       const headers: any = {
         'Content-Type': 'application/json'
       };
 
-      // Get token from request headers
-      const authToken = request.headers.get('Authorization');
-      if (authToken) {
-        headers['Authorization'] = authToken;
+      const isPublicPath =
+        path.startsWith('/api/auth/signup') ||
+        path.startsWith('/api/auth/login');
+
+      if (!isPublicPath && token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
 
       const fetchOptions: RequestInit = {
@@ -96,7 +92,7 @@ export async function POST(request: Request) {
       }
 
       const data = await response.json();
-      
+
       serviceState.failures = 0;
       serviceState.isOpen = false;
       circuitBreakerState.set(service, serviceState);
@@ -104,7 +100,7 @@ export async function POST(request: Request) {
       return NextResponse.json(data);
     } catch (error) {
       serviceState.failures++;
-      serviceState.lastFailureTime = now;
+      serviceState.lastFailureTime = Date.now();
       if (serviceState.failures >= CIRCUIT_BREAKER.failureThreshold) {
         serviceState.isOpen = true;
       }
