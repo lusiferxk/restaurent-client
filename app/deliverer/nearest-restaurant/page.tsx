@@ -1,11 +1,12 @@
 import RestaurantList from '@/components/RestaurantList'
 import React from 'react'
+import DashboardLayout from '../../adminres/DashboardLayout'
 
 const page = () => {
   return (
-    <div>
-        <RestaurantList />
-    </div>
+    <DashboardLayout>
+      <RestaurantList />
+    </DashboardLayout>
   )
 }
 

@@ -26,8 +26,8 @@ function Sidebar() {
           icon: <ListIcon size={18} />,
           path: '/restaurant/view-all-menu-items',
         },
-       
-       
+
+
       ],
     },
     {
@@ -59,13 +59,13 @@ function Sidebar() {
       submenu: [
         {
           name: 'Register for Restaurant',
-          path: '',
+          path: '/deliverer/nearest-restaurant',
         },
         {
           name: 'All registered Restaurants',
           path: '',
         },
-        
+
       ],
     },
     {
@@ -80,14 +80,14 @@ function Sidebar() {
           name: 'Vehicle Details',
           path: '',
         },
-        
+
       ],
     },
     {
       title: 'orders',
       icon: <UsersIcon size={20} />,
       submenu: [
-       
+
         {
           name: 'Schedules',
           path: '/restaurant/staff/schedules',
@@ -137,12 +137,12 @@ function Sidebar() {
 
     <div className="flexw-64 bg-white h-full shadow-lg overflow-y-auto ">
       <div className="p-4 border-b border-purple-800">
-      <div className="flex items-center">
-            <Link 
-              href="/">
-              <Image src="/images/logo.png" alt="Logo" width={130} height={80} className="ml-5 mb-4" />
-            </Link>
-          </div>
+        <div className="flex items-center">
+          <Link
+            href="/">
+            <Image src="/images/logo.png" alt="Logo" width={130} height={80} className="ml-5 mb-4" />
+          </Link>
+        </div>
         <div className="flex items-center space-x-2">
           <ChefHatIcon size={24} className="text-purple-500" />
           <span className="text-xl font-semibold text-purple-500">Restaurant Portal</span>

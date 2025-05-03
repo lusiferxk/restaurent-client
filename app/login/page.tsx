@@ -43,6 +43,8 @@ export default function LoginPage() {
         router.push('/dashboard/dashboardres');
       } else if (roles.includes('ROLE_ADMIN')) {
         router.push('/admin');
+      } else if (roles.includes('ROLE_DELIVERY_PERSON')) {
+        router.push('/dashboard/dashboardres');
       } else {
         router.push('/');
       }
@@ -191,8 +193,8 @@ export default function LoginPage() {
                         type="submit"
                         disabled={loading}
                         className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white ${loading
-                            ? 'bg-purple-400 cursor-not-allowed'
-                            : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'
+                          ? 'bg-purple-400 cursor-not-allowed'
+                          : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'
                           } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500`}
                       >
                         {loading ? 'Signing in...' : 'Sign in'}
@@ -231,7 +233,7 @@ export default function LoginPage() {
                       </motion.div>
                       <motion.div whileHover={{ y: -2 }}>
                         <Link
-                          href="/register/user_reg"
+                          href="/register/delivery-person-reg"
                           className="w-full flex items-center justify-center py-2.5 px-4 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                         >
                           <UserIcon size={16} className="mr-2" />
