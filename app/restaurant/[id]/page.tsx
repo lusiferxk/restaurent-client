@@ -1,6 +1,5 @@
-"use client"
-import React, { useState } from 'react'
-import { useParams } from 'react-router-dom'
+"use client";
+import React, { useEffect, useState } from "react";
 import {
   StarIcon,
   ClockIcon,
@@ -9,124 +8,93 @@ import {
   GlobeIcon,
   ChevronLeftIcon,
   ThumbsUpIcon,
-} from 'lucide-react'
-import Link from 'next/link'
-import  restaurants  from '@/components/RestaurantList'
-import { motion } from 'framer-motion'
-import HealthAdvice from '@/components/HealthAdvice'
-import MealCard from '@/components/MealCard'
-const menuItems = [
-  {
-    id: 1,
-    name: 'Margherita Pizza',
-    description: 'Fresh tomatoes, mozzarella, basil, and olive oil',
-    price: 14.99,
-    image:
-      'https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-    category: 'Pizza',
-    ingredients: ['Tomatoes', 'Mozzarella', 'Basil', 'Olive Oil', 'Pizza Dough'],
-  },
-  {
-    id: 2,
-    name: 'Pepperoni Pizza',
-    description: 'Classic pepperoni with mozzarella and tomato sauce',
-    price: 16.99,
-    image:
-      'https://images.unsplash.com/photo-1628840042765-356cda07504e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-    category: 'Pizza',
-    ingredients: ['Pepperoni', 'Mozzarella', 'Tomato Sauce', 'Pizza Dough'],
-  },
-  {
-    id: 3,
-    name: 'Caesar Salad',
-    description: 'Romaine lettuce, croutons, parmesan, and caesar dressing',
-    price: 8.99,
-    image:
-      'https://images.unsplash.com/photo-1550304943-4f24f54ddde9?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-    category: 'Salads',
-    ingredients: ['Romaine Lettuce', 'Croutons', 'Parmesan', 'Caesar Dressing'],
-  },
-  {
-    id: 4,
-    name: 'Margherita Pizza',
-    description: 'Fresh tomatoes, mozzarella, basil, and olive oil',
-    price: 14.99,
-    image:
-      'https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-    category: 'Pizza',
-    ingredients: ['Tomatoes', 'Mozzarella', 'Basil', 'Olive Oil', 'Pizza Dough'],
-  }
-]
-const categories = ['All', 'Pizza', 'Salads', 'Drinks', 'Desserts']
+} from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { fetchFromService } from "@/utils/fetchFromService";
+import { motion } from "framer-motion";
+import MealCard from "@/components/MealCard";
+
+const categories = ["All", "Pizza", "Salads", "Drinks", "Desserts"];
 const reviews = [
   {
     id: 1,
-    author: 'Sarah M.',
+    author: "Sarah M.",
     rating: 5,
-    date: '2 days ago',
+    date: "2 days ago",
     content:
-      'Amazing food and quick delivery! The Margherita pizza was absolutely perfect.',
+      "Amazing food and quick delivery! The Margherita pizza was absolutely perfect.",
     likes: 12,
     isVerified: true,
   },
   {
     id: 2,
-    author: 'John D.',
+    author: "John D.",
     rating: 4,
-    date: '1 week ago',
+    date: "1 week ago",
     content:
-      'Great food but delivery took a bit longer than expected. Still worth the wait!',
+      "Great food but delivery took a bit longer than expected. Still worth the wait!",
     likes: 8,
     isVerified: true,
   },
-  // Add more reviews as needed
-]
+];
+
 const popularDishes = [
   {
     id: 1,
-    name: 'Margherita Pizza',
+    name: "Margherita Pizza",
     orders: 2504,
     rating: 4.8,
     image:
-      'https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+      "https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
   },
   {
     id: 2,
-    name: 'Pepperoni Pizza',
+    name: "Pepperoni Pizza",
     orders: 2100,
     rating: 4.7,
     image:
-      'https://images.unsplash.com/photo-1628840042765-356cda07504e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
+      "https://images.unsplash.com/photo-1628840042765-356cda07504e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
   },
-  {
-    id: 4,
-    name: 'Margherita Pizza',
-    orders: 2504,
-    rating: 4.8,
-    image:
-      'https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-  }
-  // Add more popular dishes as needed
-]
-export default function RestaurantDetailsPage({ params }: { params: { id: string } }) {
-  const [activeCategory, setActiveCategory] = useState('All')
-  const [activeTab, setActiveTab] = useState('menu')
-  const restaurant = restaurants.find((r) => r.id === Number(params.id))
+];
+
+export default function RestaurantDetailsPage() {
+  const params = useParams();
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeTab, setActiveTab] = useState("menu");
+  const [restaurant, setRestaurant] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchRestaurant = async () => {
+      try {
+        const data = await fetchFromService(
+          "restaurant",
+          `/restaurants/${params.id}`,
+          "GET"
+        );
+        setRestaurant(data);
+      } catch (err) {
+        console.error("Error loading restaurant", err);
+      }
+    };
+    if (params?.id) fetchRestaurant();
+  }, [params?.id]);
+
   if (!restaurant) {
     return (
       <div className="container mx-auto px-4 py-8">Restaurant not found</div>
-    )
+    );
   }
+
   return (
     <div className="bg-white min-h-screen">
-      {/* Back button */}
       <Link
         href="/"
         className="fixed top-30 left-4 z-10 bg-white p-2 rounded-full shadow-lg hover:bg-purple-400 transition-colors"
       >
         <ChevronLeftIcon size={24} />
       </Link>
-      {/* Hero Section */}
+
       <div className="relative h-[40vh] md:h-[60vh]">
         <img
           src={restaurant.image}
@@ -161,8 +129,8 @@ export default function RestaurantDetailsPage({ params }: { params: { id: string
           </div>
         </div>
       </div>
-      {/* Restaurant Info */}
-      <div className="container mx-auto px-18 py-10">
+
+      <div className="container mx-auto px-4 py-10">
         <div className="bg-purple-100 rounded-lg shadow-lg p-6 mb-8">
           <div className="grid md:grid-cols-3 gap-6">
             <div>
@@ -188,7 +156,7 @@ export default function RestaurantDetailsPage({ params }: { params: { id: string
             <div>
               <h3 className="font-semibold mb-2 text-purple-900">Cuisine</h3>
               <div className="flex flex-wrap gap-2">
-                {restaurant.categories.map((category) => (
+                {(restaurant.categories || []).map((category: string) => (
                   <span
                     key={category}
                     className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600"
@@ -200,7 +168,7 @@ export default function RestaurantDetailsPage({ params }: { params: { id: string
             </div>
           </div>
         </div>
-        {/* Popular Dishes */}
+
         <div className="mb-15 mt-15 ">
           <h2 className="text-2xl font-bold mb-4">Popular Dishes</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -232,32 +200,44 @@ export default function RestaurantDetailsPage({ params }: { params: { id: string
             ))}
           </div>
         </div>
-        {/* Tabs */}
+
         <div className="border-b mb-8 border-purple-300">
           <div className="flex space-x-8">
             <button
-              className={`pb-4 px-2 ${activeTab === 'menu' ? 'border-b-2 border-purple-600 text-purple-600 font-medium' : 'text-gray-600'}`}
-              onClick={() => setActiveTab('menu')}
+              className={`pb-4 px-2 ${
+                activeTab === "menu"
+                  ? "border-b-2 border-purple-600 text-purple-600 font-medium"
+                  : "text-gray-600"
+              }`}
+              onClick={() => setActiveTab("menu")}
             >
               Menu
             </button>
             <button
-              className={`pb-4 px-2 ${activeTab === 'reviews' ? 'border-b-2 border-purple-600 text-purple-600 font-medium' : 'text-gray-600'}`}
-              onClick={() => setActiveTab('reviews')}
+              className={`pb-4 px-2 ${
+                activeTab === "reviews"
+                  ? "border-b-2 border-purple-600 text-purple-600 font-medium"
+                  : "text-gray-600"
+              }`}
+              onClick={() => setActiveTab("reviews")}
             >
               Reviews
             </button>
           </div>
         </div>
-        {activeTab === 'menu' ? (
+
+        {activeTab === "menu" ? (
           <>
-            {/* Categories */}
             <div className="mb-8">
               <div className="flex space-x-4 overflow-x-auto pb-4">
                 {categories.map((category) => (
                   <button
                     key={category}
-                    className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${activeCategory === category ? 'bg-purple-600 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}
+                    className={`px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
+                      activeCategory === category
+                        ? "bg-purple-600 text-white"
+                        : "bg-gray-100 hover:bg-gray-200"
+                    }`}
                     onClick={() => setActiveCategory(category)}
                   >
                     {category}
@@ -265,12 +245,12 @@ export default function RestaurantDetailsPage({ params }: { params: { id: string
                 ))}
               </div>
             </div>
-            {/* Menu Items */}
+
             <div className="max-w-6xl mx-auto mt-8 pb-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {menuItems.map((item, idx) => (
+                {(restaurant.menu || []).map((item: any, idx: number) => (
                   <motion.div
-                    key={item.id}
+                    key={item.id || idx}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.07 }}
@@ -280,7 +260,7 @@ export default function RestaurantDetailsPage({ params }: { params: { id: string
                       name={item.name}
                       description={item.description}
                       price={item.price}
-                      ingredients={item.ingredients}
+                      ingredients={item.ingredients || []}
                       restaurantName={restaurant.name}
                       restaurantRating={restaurant.rating}
                       deliveryTime={restaurant.deliveryTime}
@@ -290,14 +270,11 @@ export default function RestaurantDetailsPage({ params }: { params: { id: string
                 ))}
               </div>
             </div>
-          </> /* Reviews Section */
+          </>
         ) : (
           <div className="space-y-6">
             {reviews.map((review) => (
-              <div
-                key={review.id}
-                className="bg-white rounded-lg shadow-sm p-6"
-              >
+              <div key={review.id} className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center">
@@ -315,8 +292,8 @@ export default function RestaurantDetailsPage({ params }: { params: { id: string
                           size={16}
                           className={
                             i < review.rating
-                              ? 'text-yellow-500'
-                              : 'text-gray-300'
+                              ? "text-yellow-500"
+                              : "text-gray-300"
                           }
                           fill="currentColor"
                         />
@@ -338,5 +315,5 @@ export default function RestaurantDetailsPage({ params }: { params: { id: string
         )}
       </div>
     </div>
-  )
+  );
 }
