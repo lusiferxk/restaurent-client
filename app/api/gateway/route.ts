@@ -16,20 +16,15 @@ const requestCounts = new Map<string, { count: number; resetTime: number }>();
 
 export async function POST(req: NextRequest) {
   try {
-    // Parse request body
     let body;
     try {
       body = await req.json();
     } catch (error) {
-      return NextResponse.json(
-        { error: 'Invalid request body' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
 
     const { service, path, method, body: requestBody, token } = body;
 
-    // Validate required fields
     if (!service || !path || !method) {
       return NextResponse.json(
         { error: 'Missing required fields: service, path, or method' },
@@ -37,19 +32,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get service URL
     const serviceUrl = SERVICES[service as keyof typeof SERVICES];
     if (!serviceUrl) {
-      return NextResponse.json(
-        { error: `Service ${service} not found` },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: `Service ${service} not found` }, { status: 404 });
     }
 
-    // Rate limiting
     const now = Date.now();
     const clientIp = req.headers.get('x-forwarded-for') || 'unknown';
-    const clientState = requestCounts.get(clientIp) || { count: 0, resetTime: now + RATE_LIMIT.windowMs };
+    const clientState = requestCounts.get(clientIp) || {
+      count: 0,
+      resetTime: now + RATE_LIMIT.windowMs,
+    };
 
     if (now > clientState.resetTime) {
       clientState.count = 0;
@@ -57,10 +50,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (clientState.count >= RATE_LIMIT.max) {
-      return NextResponse.json(
-        { error: 'Too many requests' },
-        { status: 429 }
-      );
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     clientState.count++;
@@ -81,37 +71,24 @@ export async function POST(req: NextRequest) {
         body: method !== 'GET' ? JSON.stringify(requestBody) : undefined,
       });
 
-      // Check if response is JSON
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        return NextResponse.json(
-          { error: 'Invalid response format from service' },
-          { status: 502 }
-        );
-      }
-
-      const data = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      const isJson = contentType.includes('application/json');
+      const responseBody = isJson ? await response.json() : await response.text();
 
       if (!response.ok) {
         return NextResponse.json(
-          { error: data.message || `Service responded with status ${response.status}` },
+          { error: isJson ? responseBody?.message : responseBody || `Service responded with status ${response.status}` },
           { status: response.status }
         );
       }
 
-      return NextResponse.json(data);
+      return NextResponse.json(isJson ? responseBody : { message: responseBody });
     } catch (error) {
       console.error('Service error:', error);
-      return NextResponse.json(
-        { error: 'Service error occurred' },
-        { status: 502 }
-      );
+      return NextResponse.json({ error: 'Service error occurred' }, { status: 502 });
     }
   } catch (error) {
     console.error('Gateway error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-} 
+}
