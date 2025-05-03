@@ -4,8 +4,8 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  ChefHatIcon, ClipboardListIcon, TruckIcon, UsersIcon, BookOpenIcon, BarChartIcon, SettingsIcon, MessageSquareIcon,
-  DollarSignIcon, StarIcon, AlertCircleIcon, LogOutIcon, PlusCircleIcon, ListIcon, TrashIcon, PencilIcon,
+  ChefHatIcon, ClipboardListIcon, TruckIcon, UsersIcon, BookOpenIcon, BarChartIcon, SettingsIcon, MessageSquareIcon,NotebookTabs,
+  DollarSignIcon, StarIcon, AlertCircleIcon, LogOutIcon, PlusCircleIcon, ListIcon, TrashIcon, PencilIcon,CheckCheck,History,ListCollapse ,
 } from 'lucide-react'
 
 import { useAuth } from '@/contexts/AuthContext'
@@ -36,14 +36,17 @@ function Sidebar() {
       submenu: [
         {
           name: 'Create Order',
+          icon: <PlusCircleIcon size={18} />,
           path: '/restaurant/create-order',
         },
         {
           name: 'Active Orders',
+          icon: <CheckCheck size={18} />,
           path: '/restaurant/orders/active',
         },
         {
           name: 'Order History',
+          icon: <History size={18} />,
           path: '/restaurant/orders/history',
         },
         // {
@@ -59,6 +62,7 @@ function Sidebar() {
       submenu: [
         {
           name: 'Restaurant Details',
+          icon: <ListCollapse size={18} />,
           path: '/deliverer/nearest-restaurant',
         },
        
@@ -72,10 +76,12 @@ function Sidebar() {
        
         {
           name: 'Vehicle Details',
+          icon: <NotebookTabs size={18} />,
           path: '/restaurant/vehicle-details',
         },
         {
           name: 'Update Vehicle Details',
+          icon: <PencilIcon size={18} />,
           path: '/restaurant/update-vehicle-details',
         },
       ],
