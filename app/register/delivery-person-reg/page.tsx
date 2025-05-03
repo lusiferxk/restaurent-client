@@ -118,8 +118,6 @@ export default function DeliveryPersonRegistration() {
                   {error}
                 </div>
               )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input
                   className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
                   placeholder="Username"
@@ -129,17 +127,7 @@ export default function DeliveryPersonRegistration() {
                     setFormData({ ...formData, username: e.target.value })
                   }
                 />
-                <input
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
-                  type="password"
-                  placeholder="Password"
-                  required
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                />
-                <input
+                 <input
                   className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
                   type="email"
                   placeholder="Email"
@@ -149,6 +137,19 @@ export default function DeliveryPersonRegistration() {
                     setFormData({ ...formData, email: e.target.value })
                   }
                 />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                
+                 <input
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
+                  placeholder="NIC"
+                  required
+                  value={formData.nic}
+                  onChange={(e) =>
+                    setFormData({ ...formData, nic: e.target.value })
+                  }
+                />
+               
                 <input
                   className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
                   placeholder="Phone Number"
@@ -176,15 +177,7 @@ export default function DeliveryPersonRegistration() {
                     setFormData({ ...formData, lastName: e.target.value })
                   }
                 />
-                <input
-                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
-                  placeholder="NIC"
-                  required
-                  value={formData.nic}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nic: e.target.value })
-                  }
-                />
+               
                 <input
                   className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
                   type="number"
@@ -294,6 +287,16 @@ export default function DeliveryPersonRegistration() {
                   setFormData({ ...formData, vehicleDocuments: e.target.value })
                 }
               />
+              <input
+                  className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
+                  type="password"
+                  placeholder="Password"
+                  required
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                />
 
               <button
                 type="submit"
