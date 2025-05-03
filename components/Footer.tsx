@@ -1,13 +1,18 @@
 import React from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
 export function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4 text-purple-400">
-              tasteBite
-            </h3>
+           <div className="flex items-center">
+            <Link
+              href="/">
+              <Image src="/images/logo3.png" alt="Logo" width={130} height={80} className="ml-5" />
+            </Link>
+          </div>
             <p className="text-gray-400 mb-4">
               Delicious food delivered to your doorstep. Fast, reliable, and
               always fresh.

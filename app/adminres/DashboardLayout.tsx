@@ -100,9 +100,11 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   }
 
-  const hasAtLeastOneVerified = restaurants.some((r) => r.verifiedByAdmin);
+  // Check if user has any restaurants that are not verified
+  const hasUnverifiedRestaurants = restaurants.some((r) => !r.verifiedByAdmin);
+  const hasVerifiedRestaurants = restaurants.some((r) => r.verifiedByAdmin);
 
-  if (isOwner && !hasAtLeastOneVerified) {
+  if (isOwner && hasUnverifiedRestaurants && !hasVerifiedRestaurants) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-100 text-center px-4">
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md">
@@ -125,8 +127,7 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
       <main className="flex-1 overflow-y-auto p-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
+        {/* <div className="flex items-center justify-between mb-6">
           {isOwner && (
             <select
               value={selectedRestaurantId || ""}
@@ -142,7 +143,7 @@ function DashboardLayout({ children }: DashboardLayoutProps) {
                 ))}
             </select>
           )}
-        </div>
+        </div> */}
 
         {children}
       </main>

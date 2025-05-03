@@ -4,8 +4,8 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  ChefHatIcon, ClipboardListIcon, TruckIcon, UsersIcon, BookOpenIcon, BarChartIcon, SettingsIcon, MessageSquareIcon,
-  DollarSignIcon, StarIcon, AlertCircleIcon, LogOutIcon, PlusCircleIcon, ListIcon, TrashIcon, PencilIcon,
+  ChefHatIcon, ClipboardListIcon, TruckIcon, UsersIcon, BookOpenIcon, BarChartIcon, SettingsIcon, MessageSquareIcon,NotebookTabs,
+  DollarSignIcon, StarIcon, AlertCircleIcon, LogOutIcon, PlusCircleIcon, ListIcon, TrashIcon, PencilIcon,CheckCheck,History,ListCollapse ,
 } from 'lucide-react'
 
 import { useAuth } from '@/contexts/AuthContext'
@@ -36,21 +36,24 @@ function Sidebar() {
       submenu: [
         {
           name: 'Create Order',
+          icon: <PlusCircleIcon size={18} />,
           path: '/restaurant/create-order',
         },
         {
           name: 'Active Orders',
+          icon: <CheckCheck size={18} />,
           path: '/restaurant/orders/active',
         },
         {
           name: 'Order History',
+          icon: <History size={18} />,
           path: '/restaurant/orders/history',
         },
-        {
-          name: 'Create cart',
-          icon: <ListIcon size={18} />,
-          path: '/restaurant/create-cart',
-        },
+        // {
+        //   name: 'Create cart',
+        //   icon: <ListIcon size={18} />,
+        //   path: '/restaurant/create-cart',
+        // },
       ],
     },
     {
@@ -58,13 +61,11 @@ function Sidebar() {
       icon: <TruckIcon size={20} />,
       submenu: [
         {
-          name: 'Register for Restaurant',
+          name: 'Restaurant Details',
+          icon: <ListCollapse size={18} />,
           path: '/deliverer/nearest-restaurant',
         },
-        {
-          name: 'All registered Restaurants',
-          path: '',
-        },
+       
 
       ],
     },
@@ -72,15 +73,17 @@ function Sidebar() {
       title: 'Vehicle Management',
       icon: <TruckIcon size={20} />,
       submenu: [
-        {
-          name: 'Vehicle Registration',
-          path: '',
-        },
+       
         {
           name: 'Vehicle Details',
-          path: '',
+          icon: <NotebookTabs size={18} />,
+          path: '/restaurant/vehicle-details',
         },
-
+        {
+          name: 'Update Vehicle Details',
+          icon: <PencilIcon size={18} />,
+          path: '/restaurant/update-vehicle-details',
+        },
       ],
     },
     {
@@ -135,8 +138,8 @@ function Sidebar() {
 
   return (
 
-    <div className="flexw-64 bg-white h-full shadow-lg overflow-y-auto ">
-      <div className="p-4 border-b border-purple-800">
+    <div className="flexw-64 bg-white h-full shadow-lg overflow-y-auto" style={{ scrollbarColor: '#8200db #f3f4f6', scrollbarWidth: 'thin' }}>
+      <div className="p-4  border-b border-purple-400">
         <div className="flex items-center">
           <Link
             href="/">
@@ -147,8 +150,8 @@ function Sidebar() {
           <ChefHatIcon size={24} className="text-purple-500" />
           <span className="text-xl font-semibold text-purple-500">Restaurant Portal</span>
         </div>
-      </div>
-      <nav className="p-4">
+      </div>      <nav className="p-4 bg-purple-50" >
+
         {menuItems.map((item, index) => (
           <div key={index} className="mb-4">
             <div className="flex items-center px-4 py-2.5 text-purple-600 rounded-lg hover:bg-purple-50 cursor-pointer">
@@ -173,7 +176,7 @@ function Sidebar() {
             )}
           </div>
         ))}
-        <div className="mt-auto pt-4 border-t">
+        <div className="mt-auto pt-4 border-t border-purple-400">
           <button
             className="flex items-center w-full px-4 py-2.5 text-red-600 rounded-lg hover:bg-red-50"
             onClick={() => logout()}

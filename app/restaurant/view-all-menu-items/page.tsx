@@ -14,12 +14,50 @@ import {
   Camera,
   DollarSign
 } from 'lucide-react';
+import DashboardLayout from '../../adminres/DashboardLayout';
+import { fetchFromService } from '@/utils/fetchFromService';
+
+interface MenuItem {
+  id: string;
+  name: string;
+  price: number | string;
+  description: string;
+  available: boolean;
+  imageUrl?: string;
+  category?: string;
+}
+
+interface Restaurant {
+  id: string;
+  verifiedByAdmin: boolean;
+}
+
+interface ViewDetailsModalProps {
+  item: MenuItem | null;
+  onClose: () => void;
+  onEdit: (item: MenuItem) => void;
+}
+
+interface EditItemModalProps {
+  item: MenuItem | null;
+  onClose: () => void;
+  onSave: (item: MenuItem) => void;
+}
+
+// Helper function to format price
+const formatPrice = (price: number | string): string => {
+  if (typeof price === 'string') {
+    return `Rs ${parseFloat(price).toFixed(2)}`;
+  }
+  return `Rs ${price.toFixed(2)}`;
+};
 
 // View Details Modal Component
-const ViewDetailsModal = ({ item, onClose, onEdit }) => {
+const ViewDetailsModal = ({ item, onClose, onEdit }: ViewDetailsModalProps) => {
   if (!item) return null;
   
   return (
+    <DashboardLayout>
     <div className="fixed inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
@@ -40,7 +78,7 @@ const ViewDetailsModal = ({ item, onClose, onEdit }) => {
             <div className="w-full md:w-1/3">
               <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                 <img 
-                  src={item.image || '/api/placeholder/300/300'} 
+                  src={item.imageUrl || '/api/placeholder/300/300'} 
                   alt={item.name}
                   className="w-full h-full object-cover"
                 />
@@ -63,7 +101,7 @@ const ViewDetailsModal = ({ item, onClose, onEdit }) => {
               
               <div className="flex items-center text-gray-700 mb-4">
                 <DollarSign size={20} className="text-purple-500 mr-2" />
-                <span className="text-xl font-bold">Rs {item.price?.toFixed(2)}</span>
+                <span className="text-xl font-bold">{formatPrice(item.price)}</span>
               </div>
               
               <div className="mb-6">
@@ -78,8 +116,8 @@ const ViewDetailsModal = ({ item, onClose, onEdit }) => {
                     <p className="text-gray-700">{item.id}</p>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500 mb-1">CREATED ON</h4>
-                    <p className="text-gray-700">April 25, 2025</p>
+                    <h4 className="text-sm font-medium text-gray-500 mb-1">CATEGORY</h4>
+                    <p className="text-gray-700">{item.category || 'Uncategorized'}</p>
                   </div>
                 </div>
               </div>
@@ -104,24 +142,28 @@ const ViewDetailsModal = ({ item, onClose, onEdit }) => {
         </div>
       </div>
     </div>
+    </DashboardLayout>
   );
 };
 
 // Edit Item Modal Component
-const EditItemModal = ({ item, onClose, onSave }) => {
-  const [editedItem, setEditedItem] = useState(item || {
+const EditItemModal = ({ item, onClose, onSave }: EditItemModalProps) => {
+  const [editedItem, setEditedItem] = useState<MenuItem>(item || {
+    id: '',
     name: '',
-    price: '',
+    price: 0,
     description: '',
     available: true,
-    image: '/api/placeholder/300/300'
+    imageUrl: '/api/placeholder/300/300'
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+    
     setEditedItem({
       ...editedItem,
       [name]: type === 'checkbox' ? checked : value
@@ -132,20 +174,19 @@ const EditItemModal = ({ item, onClose, onSave }) => {
     setIsSubmitting(true);
     
     try {
-      // Mock API call with timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await fetchFromService(
+        'restaurant',
+        `/menu/${editedItem.id}`,
+        'PATCH',
+        editedItem
+      );
       
-      // Call the onSave callback with the edited item
-      if (onSave) {
-        onSave(editedItem);
-      }
-      
+      onSave(editedItem);
       setMessage({ 
         type: 'success', 
         text: 'Menu item updated successfully!' 
       });
       
-      // Close modal after a short delay
       setTimeout(() => {
         onClose();
       }, 1500);
@@ -163,6 +204,7 @@ const EditItemModal = ({ item, onClose, onSave }) => {
   if (!item) return null;
   
   return (
+    <DashboardLayout>
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
@@ -190,10 +232,10 @@ const EditItemModal = ({ item, onClose, onSave }) => {
             {/* Image Upload */}
             <div className="col-span-2">
               <div className="flex justify-center items-center border-2 border-dashed border-gray-300 rounded-lg p-4 relative cursor-pointer hover:border-purple-400 transition-colors">
-                {editedItem.image ? (
+                {editedItem.imageUrl ? (
                   <div className="relative w-full">
                     <img 
-                      src={editedItem.image} 
+                      src={editedItem.imageUrl} 
                       alt="Menu item preview" 
                       className="h-48 w-full object-cover rounded-md"
                     />
@@ -261,7 +303,7 @@ const EditItemModal = ({ item, onClose, onSave }) => {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 placeholder="Describe your menu item"
-                rows="4"
+                rows={4}
               />
             </div>
             
@@ -301,291 +343,257 @@ const EditItemModal = ({ item, onClose, onSave }) => {
         </div>
       </div>
     </div>
+    </DashboardLayout>
   );
 };
 
 // Main ViewAllMenuItems Component
 const ViewAllMenuItems = () => {
-  const [menuItems, setMenuItems] = useState([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterAvailable, setFilterAvailable] = useState('all');
-  const [dropdownOpen, setDropdownOpen] = useState(null);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  
-  // Mock data for demonstration
-  const mockMenuItems = [
-    {
-      id: '1',
-      name: 'Chicken Burger',
-      price: 750.00,
-      description: 'Grilled chicken with spicy mayo',
-      available: true,
-      image: '/api/placeholder/100/100'
-    },
-    {
-      id: '2',
-      name: 'Veggie Pizza',
-      price: 950.00,
-      description: 'Fresh vegetables on homemade crust',
-      available: true,
-      image: '/api/placeholder/100/100'
-    },
-    {
-      id: '3',
-      name: 'Chocolate Cake',
-      price: 450.00,
-      description: 'Rich chocolate cake with ganache',
-      available: false,
-      image: '/api/placeholder/100/100'
-    },
-    {
-      id: '4',
-      name: 'Grilled Fish',
-      price: 1250.00,
-      description: 'Fresh catch of the day with lemon butter',
-      available: true,
-      image: '/api/placeholder/100/100'
-    },
-    {
-      id: '5',
-      name: 'Fried Rice',
-      price: 650.00,
-      description: 'Wok-fried rice with vegetables',
-      available: true,
-      image: '/api/placeholder/100/100'
-    }
-  ];
-  
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
   useEffect(() => {
-    // Simulate API fetch with timeout
     const fetchData = async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setMenuItems(mockMenuItems);
-      } catch (error) {
-        console.error('Error fetching menu items:', error);
+        setLoading(true);
+        setError('');
+
+        // Get user from localStorage
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user?.id) throw new Error("User not found in localStorage.");
+
+        // Get restaurant ID for the user
+        const restaurantResponse = await fetchFromService(
+          'restaurant',
+          `/restaurants/user/${user.id}`,
+          'GET'
+        );
+
+        if (!Array.isArray(restaurantResponse)) {
+          throw new Error("Invalid response format from restaurants API");
+        }
+
+        const verifiedRestaurant = restaurantResponse.find((r: Restaurant) => r.verifiedByAdmin);
+        if (!verifiedRestaurant) throw new Error("No verified restaurant found for this user.");
+
+        const restaurantId = verifiedRestaurant.id;
+
+        // Fetch menu items for the restaurant
+        const response = await fetchFromService(
+          'restaurant',
+          `/menu/restaurant/${restaurantId}`,
+          'GET'
+        );
+
+        if (!Array.isArray(response)) {
+          throw new Error("Invalid response format from menu API");
+        }
+
+        // Ensure all prices are numbers
+        const formattedMenuItems = response.map(item => ({
+          ...item,
+          price: typeof item.price === 'string' ? parseFloat(item.price) : item.price
+        }));
+
+        setMenuItems(formattedMenuItems);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch menu items');
+        console.error('Error fetching menu items:', err);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, []);
-  
-  // Filter menu items based on search term and availability filter
-  const filteredItems = menuItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          item.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (filterAvailable === 'all') return matchesSearch;
-    if (filterAvailable === 'available') return matchesSearch && item.available;
-    if (filterAvailable === 'unavailable') return matchesSearch && !item.available;
-    
-    return matchesSearch;
-  });
-  
-  const openDropdown = (id) => {
-    setDropdownOpen(dropdownOpen === id ? null : id);
-  };
-  
-  const handleDeleteItem = (id) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      setMenuItems(menuItems.filter(item => item.id !== id));
-      setDropdownOpen(null);
+
+  const handleDeleteItem = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
+
+    try {
+      await fetchFromService(
+        'restaurant',
+        `/menu/${id}`,
+        'DELETE'
+      );
+
+      setMenuItems(prevItems => prevItems.filter(item => item.id !== id));
+    } catch (err: any) {
+      console.error('Error deleting menu item:', err);
+      alert('Failed to delete menu item');
     }
   };
-  
-  const handleViewItem = (item) => {
+
+  const handleViewItem = (item: MenuItem) => {
     setSelectedItem(item);
-    setViewModalOpen(true);
-    setDropdownOpen(null);
+    setIsViewModalOpen(true);
   };
-  
-  const handleEditItem = (item) => {
+
+  const handleEditItem = (item: MenuItem) => {
     setSelectedItem(item);
-    setEditModalOpen(true);
-    setDropdownOpen(null);
+    setIsEditModalOpen(true);
   };
-  
-  const handleSaveEdit = (updatedItem) => {
-    setMenuItems(menuItems.map(item => 
-      item.id === updatedItem.id ? updatedItem : item
-    ));
+
+  const handleSaveEdit = async (updatedItem: MenuItem) => {
+    try {
+      await fetchFromService(
+        'restaurant',
+        `/menu/${updatedItem.id}`,
+        'PATCH',
+        updatedItem
+      );
+
+      setMenuItems(prevItems => 
+        prevItems.map(item => 
+          item.id === updatedItem.id ? updatedItem : item
+        )
+      );
+    } catch (err: any) {
+      console.error('Error updating menu item:', err);
+      alert('Failed to update menu item');
+    }
   };
-  
-  // Click outside dropdown to close
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownOpen && !event.target.closest('.dropdown-container')) {
-        setDropdownOpen(null);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [dropdownOpen]);
-  
+
+  // Filter menu items based on search term
+  const filteredItems = menuItems.filter(item =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Menu Items</h1>
-        <a 
-          href="/restaurant/add-menu-item" 
-          className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-        >
-          <PlusCircle size={18} className="mr-2" />
-          Add New Item
-        </a>
-      </div>
-      
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 space-y-4 md:space-y-0">
-          <div className="relative w-full md:w-80">
-            <input 
+    <DashboardLayout>
+      <div className="p-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-purple-800">Menu Items</h1>
+          <a
+            href="/restaurant/add-menu-item"
+            className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+          >
+            <PlusCircle size={20} className="mr-2" />
+            Add New Item
+          </a>
+        </div>
+
+        {/* Search and Filter Bar */}
+        <div className="flex gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
               type="text"
+              placeholder="Search items..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search menu items..."
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
-            <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
           </div>
-          
-          <div className="flex items-center space-x-2">
-            <Filter size={18} className="text-gray-500" />
-            <select 
-              value={filterAvailable}
-              onChange={(e) => setFilterAvailable(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              <option value="all">All Items</option>
-              <option value="available">Available Only</option>
-              <option value="unavailable">Unavailable Only</option>
-            </select>
-          </div>
+          <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+            <Filter size={20} className="mr-2" />
+            Filter
+          </button>
         </div>
-        
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-          </div>
-        ) : filteredItems.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No menu items found.</p>
-            <p className="text-gray-400 mt-2">Try adjusting your search or filters.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Item
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
-                          <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                          <div className="text-sm text-gray-500 line-clamp-1">{item.description}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">Rs {item.price.toFixed(2)}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold leading-5 rounded-full ${
-                        item.available 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {item.available ? 'Available' : 'Unavailable'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative dropdown-container">
-                      <button
-                        className="text-gray-500 hover:text-gray-700"
-                        onClick={() => openDropdown(item.id)}
-                      >
-                        <MoreVertical size={18} />
-                      </button>
-                      
-                      {dropdownOpen === item.id && (
-                        <div className="absolute right-6 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-                          <div className="py-1">
-                            <button
-                              onClick={() => handleViewItem(item)}
-                              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-                            >
-                              <Eye size={16} className="mr-3 text-gray-500" />
-                              View Details
-                            </button>
-                            <button
-                              onClick={() => handleEditItem(item)}
-                              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
-                            >
-                              <Edit size={16} className="mr-3 text-gray-500" />
-                              Edit Item
-                            </button>
-                            <button
-                              className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                              onClick={() => handleDeleteItem(item.id)}
-                            >
-                              <Trash size={16} className="mr-3 text-red-500" />
-                              Delete Item
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-md">
+            {error}
           </div>
         )}
+
+        {/* Loading State */}
+        {loading ? (
+          <div className="text-center py-8">Loading menu items...</div>
+        ) : (
+          /* Menu Items Grid */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredItems.map((item) => (
+              <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="relative">
+                  <img
+                    src={item.imageUrl || '/api/placeholder/300/300'}
+                    alt={item.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="absolute top-2 right-2">
+                    <button
+                      onClick={() => setOpenDropdownId(openDropdownId === item.id ? null : item.id)}
+                      className="p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
+                    >
+                      <MoreVertical size={20} />
+                    </button>
+                    {openDropdownId === item.id && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                        <button
+                          onClick={() => handleViewItem(item)}
+                          className="flex items-center w-full px-4 py-2 text-left hover:bg-gray-100"
+                        >
+                          <Eye size={16} className="mr-2" />
+                          View Details
+                        </button>
+                        <button
+                          onClick={() => handleEditItem(item)}
+                          className="flex items-center w-full px-4 py-2 text-left hover:bg-gray-100"
+                        >
+                          <Edit size={16} className="mr-2" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteItem(item.id)}
+                          className="flex items-center w-full px-4 py-2 text-left text-red-600 hover:bg-gray-100"
+                        >
+                          <Trash size={16} className="mr-2" />
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-800">{item.name}</h3>
+                  <p className="text-gray-600 mt-1">{item.description}</p>
+                  <div className="flex justify-between items-center mt-4">
+                    <span className="text-purple-600 font-bold">{formatPrice(item.price)}</span>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      item.available ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {item.available ? 'Available' : 'Unavailable'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Modals */}
+        {isViewModalOpen && (
+          <ViewDetailsModal
+            item={selectedItem}
+            onClose={() => setIsViewModalOpen(false)}
+            onEdit={() => {
+              setIsViewModalOpen(false);
+              handleEditItem(selectedItem!);
+            }}
+          />
+        )}
+
+        {isEditModalOpen && (
+          <EditItemModal
+            item={selectedItem}
+            onClose={() => setIsEditModalOpen(false)}
+            onSave={(updatedItem) => {
+              handleSaveEdit(updatedItem);
+              setIsEditModalOpen(false);
+            }}
+          />
+        )}
       </div>
-      
-      {/* View Details Modal */}
-      {viewModalOpen && (
-        <ViewDetailsModal 
-          item={selectedItem}
-          onClose={() => setViewModalOpen(false)}
-          onEdit={handleEditItem}
-        />
-      )}
-      
-      {/* Edit Item Modal */}
-      {editModalOpen && (
-        <EditItemModal 
-          item={selectedItem}
-          onClose={() => setEditModalOpen(false)}
-          onSave={handleSaveEdit}
-        />
-      )}
-    </div>
+    </DashboardLayout>
   );
 };
 
