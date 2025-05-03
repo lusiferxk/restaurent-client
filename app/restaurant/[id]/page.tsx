@@ -90,7 +90,7 @@ export default function RestaurantDetailsPage() {
     <div className="bg-white min-h-screen">
       <Link
         href="/"
-        className="fixed top-30 left-4 z-10 bg-white p-2 rounded-full shadow-lg hover:bg-purple-400 transition-colors"
+        className="fixed top-10 left-9 z-10 bg-white p-2 rounded-full shadow-lg hover:bg-purple-400 transition-colors"
       >
         <ChevronLeftIcon size={24} />
       </Link>
@@ -130,7 +130,7 @@ export default function RestaurantDetailsPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-10">
+      <div className="container mx-auto px-24 py-10">
         <div className="bg-purple-100 rounded-lg shadow-lg p-6 mb-8">
           <div className="grid md:grid-cols-3 gap-6">
             <div>
