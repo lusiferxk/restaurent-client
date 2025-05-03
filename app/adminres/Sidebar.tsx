@@ -132,7 +132,7 @@ function Sidebar() {
 
   return (
 
-    <div className="flexw-64 bg-white h-full shadow-lg overflow-y-auto">
+    <div className="flexw-64 bg-white h-full shadow-lg overflow-y-auto" style={{ scrollbarColor: '#8200db #f3f4f6', scrollbarWidth: 'thin' }}>
       <div className="p-4  border-b border-purple-400">
         <div className="flex items-center">
           <Link
@@ -144,8 +144,8 @@ function Sidebar() {
           <ChefHatIcon size={24} className="text-purple-500" />
           <span className="text-xl font-semibold text-purple-500">Restaurant Portal</span>
         </div>
-      </div>
-      <nav className="p-4 bg-purple-50">
+      </div>      <nav className="p-4 bg-purple-50" >
+
         {menuItems.map((item, index) => (
           <div key={index} className="mb-4">
             <div className="flex items-center px-4 py-2.5 text-purple-600 rounded-lg hover:bg-purple-50 cursor-pointer">

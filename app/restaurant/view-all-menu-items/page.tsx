@@ -440,7 +440,7 @@ const ViewAllMenuItems = () => {
     <DashboardLayout>
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Menu Items</h1>
+        <h1 className="text-2xl font-bold text-purple-800">All Menu Items</h1>
         <a 
           href="/restaurant/add-menu-item" 
           className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"

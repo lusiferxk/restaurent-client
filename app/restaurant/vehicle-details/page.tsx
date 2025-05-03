@@ -27,7 +27,7 @@ const VehicleDetails = () => {
   return (
     <DashboardLayout>
     <div className="p-8 min-h-screen flex flex-col items-center">
-      <h1 className="text-3xl font-extrabold text-purple-700 mb-13 text-center">Vehicle Details</h1>
+      <h1 className="text-3xl font-extrabold text-purple-800 mb-13 text-center">Vehicle Details</h1>
       <div className="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row w-full max-w-5xl">
         {/* Profile Section */}
         <div className="md:w-1/3 flex flex-col items-center p-10 bg-purple-50">
