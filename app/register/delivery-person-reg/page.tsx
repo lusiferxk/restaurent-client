@@ -50,7 +50,7 @@ export default function DeliveryPersonRegistration() {
         const userWithCity = { ...response.user, city: formData.city }
         localStorage.setItem('user', JSON.stringify(userWithCity))
         localStorage.setItem('authToken', response.token)
-        router.push('/')
+        router.push('/dashboard/dashboardres')
       } else {
         throw new Error('Invalid response from server')
       }
