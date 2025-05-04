@@ -17,7 +17,7 @@ export interface MenuItem {
 export interface Restaurant {
   id: number
   name: string
-  image: string
+  restaurantImage: string
   rating: number
   deliveryTime: string
   deliveryFee: string
@@ -32,6 +32,8 @@ interface RestaurantCardProps {
 
 export function RestaurantCard({ restaurant }: RestaurantCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  console.log(restaurant.restaurantImage);
   
   return (
     <>
@@ -41,7 +43,7 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
       >
         <div className="relative rounded-lg overflow-hidden aspect-video mb-3">
           <img
-            src={restaurant.image || 'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png'}
+            src={restaurant.restaurantImage || 'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png'}
             alt={restaurant.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />

@@ -19,7 +19,7 @@ function RestaurantList() {
         const formatted = data.map((item: any) => ({
           id: item.id,
           name: item.name,
-          image: item.image || '',
+          restaurantImage: item.restaurantImage || '',
           rating: item.rating || 0,
           deliveryTime: item.deliveryTime ? `${item.deliveryTime}` : '0',
           deliveryFee: item.deliveryFee ? `LKR ${item.deliveryFee}` : 'LKR 0',

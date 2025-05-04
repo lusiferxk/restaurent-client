@@ -14,11 +14,12 @@ import {
   Edit,
   Calendar,
   ShoppingBag,
+  LogOutIcon,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { fetchFromService } from "@/utils/fetchFromService";
+import { useRouter } from "next/navigation";
 
-// Sample data - replace with API calls
 const sampleActiveOrders = [
   {
     id: 1,
@@ -81,7 +82,8 @@ const sampleOrderHistory = [
 ];
 
 const UserProfile = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("profile");
   const [activeOrders, setActiveOrders] = useState(sampleActiveOrders);
   const [orderHistory, setOrderHistory] = useState(sampleOrderHistory);
@@ -165,6 +167,16 @@ const UserProfile = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('Failed to logout:', error);
+      alert('Failed to logout. Please try again.');
+    }
+  };
+
   const filteredOrders = orderHistory.filter(
     (order) =>
       order.restaurantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -242,13 +254,13 @@ const UserProfile = () => {
                   {editMode ? "Cancel" : "Edit Profile"}
                 </button>
                 <button
-                    onClick={() => setEditMode(!editMode)}
-                    className="flex items-center text-sm border border-red-500 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition"
-                  >
-                    <Edit size={16} className="mr-1" />
-                    {editMode ? "Cancel" : "Log Out"}
-                  </button>
-                  </div>
+                  onClick={handleLogout}
+                  className="flex items-center text-sm border border-red-500 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition"
+                >
+                  <LogOutIcon size={16} className="mr-1" />
+                  Log Out
+                </button>
+                </div>
               </div>
 
               {editMode ? (

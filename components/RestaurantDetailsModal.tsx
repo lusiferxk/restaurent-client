@@ -82,7 +82,7 @@ export function RestaurantDetailsModal({
               </div>
 
               <img
-                src={restaurant.image || fallbackImage}
+                src={restaurant.restaurantImage || fallbackImage}
                 alt={restaurant.name}
                 className="w-full h-full object-cover"
               />
