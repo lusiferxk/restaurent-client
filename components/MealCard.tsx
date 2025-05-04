@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { ShoppingCart } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { fetchFromService } from '@/utils/fetchFromService'
+import { Client } from '@stomp/stompjs';
 
 interface MenuItem {
   id: string;
@@ -26,6 +27,7 @@ const MealCard: React.FC<MealCardProps> = ({ restaurantId, restaurantName, resta
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [stompClient, setStompClient] = useState<Client | null>(null);
 
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -46,6 +48,24 @@ const MealCard: React.FC<MealCardProps> = ({ restaurantId, restaurantName, resta
 
     fetchMenuItems();
   }, [restaurantId]);
+
+  // const sendTestNotification = () => {
+  //   if (stompClient.current?.connected) {
+  //     stompClient.current.publish({
+  //       destination: '/app/sendNotification',
+  //       body: JSON.stringify({
+  //         title: 'Test Order Notification',
+  //         message: 'This is a test order message',
+  //         type: 'order',
+  //         userId: currentUserId,
+  //         email: 'sudaraka731@gmail.com'
+  //       }),
+  //       headers: {
+  //         Authorization: `Bearer ${token}`
+  //       }
+  //     });
+  //   }
+  // };
 
   const handleCheckout = async (item: MenuItem) => {
     try {
@@ -72,8 +92,7 @@ const MealCard: React.FC<MealCardProps> = ({ restaurantId, restaurantName, resta
         deliveryTime: deliveryTime || '',
         itemId: item.id
       });
-      
-      router.push(`/checkout?${params.toString()}`);
+      alert('Order added to cart');
     } catch (error) {
       console.error('Failed to add to cart:', error);
       alert('Failed to add to cart');
