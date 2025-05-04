@@ -29,7 +29,7 @@ export default function NearestRestaurants() {
 
     const nearest = await fetchFromService(
       'delivery',
-      `/delivery/restaurants/city/Gampaha`,
+      `/delivery/restaurants/city/colombo`,
       'GET'
     );
     setRestaurants(nearest);
@@ -119,7 +119,7 @@ export default function NearestRestaurants() {
   };
 
   // Add a fallback image for restaurants
-  const fallbackImage = 'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png';
+  const fallbackImage = 'https://www.allrecipes.com/thmb/aefJMDXKqs42oAP71dQuYf_-Qdc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/6776_Pizza-Dough_ddmfs_4x3_1724-fd91f26e0bd6400a9e89c6866336532b.jpg';
 
   // Filter restaurants by search
   const filteredRestaurants = (showRegistered ? registeredRestaurants : restaurants).filter(
