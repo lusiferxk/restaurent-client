@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { useAuth } from "@/contexts/AuthContext";
-import { UserIcon, MapPin, Smartphone, Mail, Lock, Utensils } from "lucide-react";
+import { UserIcon, MapPin, Smartphone, Mail, Lock, Utensils, AlertCircle } from "lucide-react";
 import { MapSearch } from "../../../components/MapSearch";
 import { motion } from "framer-motion";
 import { fetchFromService } from '@/utils/fetchFromService';
@@ -47,6 +47,7 @@ export default function UserRegistration() {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
+    confirmPassword: "",
     email: "",
     firstName: "",
     lastName: "",
@@ -56,6 +57,7 @@ export default function UserRegistration() {
     phoneNumber: "+94 ",
   });
 
+  const [passwordError, setPasswordError] = useState("");
   const [location, setLocation] = useState<Location>({
     lat: 6.9271,
     lng: 79.8612,
@@ -84,20 +86,31 @@ export default function UserRegistration() {
   const router = useRouter();
   const { login } = useAuth();
 
+  const validatePasswords = () => {
+    if (formData.password !== formData.confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return false;
+    }
+    setPasswordError("");
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate passwords match
+    if (!validatePasswords()) {
+      return;
+    }
+
     try {
+      // Remove confirmPassword from payload
+      const { confirmPassword, ...dataToSubmit } = formData;
+      
       const payload = {
-        username: formData.username,
-        password: formData.password,
-        email: formData.email,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        ...dataToSubmit,
         address: `${location.lat}, ${location.lng}`,
-        city: formData.city,
         postalCode: parseInt(formData.postalCode) || 10000,
-        phoneNumber: formData.phoneNumber,
       };
 
       const response = await fetchFromService("user", "/api/auth/signup/user", "POST", payload);
@@ -145,15 +158,9 @@ export default function UserRegistration() {
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="hidden lg:flex flex-1 bg-gradient-to-br from-purple-600 to-indigo-700 text-white px-12 flex-col justify-center relative overflow-hidden"
+          className="hidden lg:flex flex-1 bg-gradient-to-br from-purple-600 to-indigo-700 text-white px-12 min-h-screen items-center justify-center relative overflow-hidden"
         >
-          <div className="absolute top-0 left-0 w-full h-full opacity-10">
-            <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-white"></div>
-            <div className="absolute bottom-40 right-30 w-60 h-60 rounded-full bg-white"></div>
-            <div className="absolute top-1/2 right-1/4 w-80 h-80 rounded-full bg-white"></div>
-          </div>
-
-          <div className="relative z-10 max-w-md mx-auto">
+          <div className="w-full flex flex-col items-center justify-center text-center relative z-10 max-w-md mx-auto">
             <div className="flex items-center mb-8">
               <Utensils size={32} className="mr-2" />
               <div className="text-4xl font-bold">TasteBite</div>
@@ -162,23 +169,11 @@ export default function UserRegistration() {
             <p className="text-lg text-purple-100 mb-8">
               Create your account to discover amazing restaurants, save your favorites, and get personalized recommendations.
             </p>
-
-            {/* <div className="flex space-x-4">
-              <motion.div 
-                whileHover={{ y: -5 }}
-                className="bg-white bg-opacity-20 p-4 rounded-lg backdrop-blur-sm"
-              >
-                <UserIcon size={24} />
-                <p className="mt-2 text-sm">Food Explorer</p>
-              </motion.div>
-              <motion.div 
-                whileHover={{ y: -5 }}
-                className="bg-white bg-opacity-20 p-4 rounded-lg backdrop-blur-sm"
-              >
-                <ChefHat size={24} />
-                <p className="mt-2 text-sm">Restaurant Owner</p>
-              </motion.div>
-            </div> */}
+          </div>
+          <div className="absolute top-0 left-0 w-full h-full opacity-10">
+            <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-white"></div>
+            <div className="absolute bottom-40 right-30 w-60 h-60 rounded-full bg-white"></div>
+            <div className="absolute top-1/2 right-1/4 w-80 h-80 rounded-full bg-white"></div>
           </div>
         </motion.div>
 
@@ -196,20 +191,7 @@ export default function UserRegistration() {
               transition={{ delay: 0.4 }}
               className="bg-white shadow-xl rounded-2xl overflow-hidden"
             >
-              <div className="p-8">
-                {/* <div className="flex justify-center mb-6">
-                  <div className="p-3 rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 shadow-md">
-                    <UserIcon size={32} className="text-purple-600" />
-                  </div>
-                </div> */}
-
-                {/* <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-2">
-                  Create Your Account
-                </h2>
-                <p className="text-center text-gray-500 mb-8">
-                  Join us to start your culinary journey
-                </p> */}
-
+              <div className="p-8 max-h-[80vh] overflow-y-auto">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -384,6 +366,35 @@ export default function UserRegistration() {
                           }
                           placeholder="••••••••"
                         />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Confirm Password
+                      </label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <Lock size={16} className="text-gray-400" />
+                        </div>
+                        <input
+                          type="password"
+                          required
+                          className={`mt-1 block w-full pl-10 pr-3 py-2.5 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+                            passwordError ? "border-red-500" : "border-gray-200"
+                          }`}
+                          value={formData.confirmPassword}
+                          onChange={(e) =>
+                            setFormData({ ...formData, confirmPassword: e.target.value })
+                          }
+                          onBlur={validatePasswords}
+                          placeholder="••••••••"
+                        />
+                        {passwordError && (
+                          <div className="flex items-center mt-1 text-red-500 text-sm">
+                            <AlertCircle size={14} className="mr-1" />
+                            <span>{passwordError}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

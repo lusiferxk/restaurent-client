@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../adminres/DashboardLayout';
 import { fetchFromService } from '@/utils/fetchFromService';
+import { Search } from 'lucide-react';
 
 interface Restaurant {
   id: string;
@@ -20,6 +21,7 @@ export default function NearestRestaurants() {
   const [message, setMessage] = useState('');
   const [registeredId, setRegisteredId] = useState<string | null>(null);
   const [showRegistered, setShowRegistered] = useState(false);
+  const [search, setSearch] = useState('');
 
   const fetchNearest = async () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -119,25 +121,42 @@ export default function NearestRestaurants() {
   // Add a fallback image for restaurants
   const fallbackImage = 'https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png';
 
+  // Filter restaurants by search
+  const filteredRestaurants = (showRegistered ? registeredRestaurants : restaurants).filter(
+    r =>
+      r.name.toLowerCase().includes(search.toLowerCase()) ||
+      r.city.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto mt-8">
-        <div className="flex justify-start mb-15 space-x-4">
+        <div className="flex items-center mb-8 gap-4">
           <button
-            className={`px-4 py-2 rounded ${!showRegistered ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`px-6 py-2 rounded-xl font-medium transition-colors ${!showRegistered ? 'bg-gradient-to-r from-purple-600 to-indigo-500 text-white shadow' : 'bg-gray-200 text-gray-700'}`}
             onClick={handleShowNearest}
           >
             Nearest Restaurants
           </button>
           <button
-            className={`px-4 py-2 rounded ${showRegistered ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`px-6 py-2 rounded-xl font-medium transition-colors ${showRegistered ? 'bg-gradient-to-r from-purple-600 to-indigo-500 text-white shadow' : 'bg-gray-200 text-gray-700'}`}
             onClick={handleShowRegistered}
           >
             All Registered Restaurants
           </button>
+          <div className="relative flex-1 max-w-xs ml-70 ">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-400">
+              <Search className="w-5 h-5" />
+            </span>
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search Restaurant..."
+              className="pl-12 w-full bg-gray-100  rounded-xl px-6 py-2 font-medium text-purple-700 focus:ring-2 focus:ring-purple-500 transition border-1 border-purple-500"
+            />
+          </div>
         </div>
-
-      
 
         {loading ? (
           <div className="text-center py-8">Loading...</div>
@@ -158,7 +177,7 @@ export default function NearestRestaurants() {
               )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {(showRegistered ? registeredRestaurants : restaurants).map((r) => (
+              {filteredRestaurants.map((r) => (
                 <div
                   key={r.id}
                   className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow"
