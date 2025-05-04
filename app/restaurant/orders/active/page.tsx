@@ -46,6 +46,17 @@ interface Order {
   items: OrderItem[];
 }
 
+interface DeliveryPerson {
+  id: string;
+  name: string;
+  address: string | null;
+  city: string | null;
+  registeredRestaurantId: string;
+  available: boolean;
+  assignedOrderIds: string[];
+  deliveryStatus: string | null;
+}
+
 const ORDER_STATUSES = [
   'PENDING',
   'CONFIRMED',
@@ -141,34 +152,23 @@ const ActiveOrders = () => {
       if (!verifiedRestaurant) throw new Error("No verified restaurant found for this user.");
 
       const restaurantId = verifiedRestaurant.id;
+      console.log('Current Restaurant ID:', restaurantId);
 
-      // First check if there are any registered delivery persons
-      const registeredDeliveryPersons = await fetchFromService(
-        'delivery',
-        '/delivery/all-delivery-persons',
-        'GET'
-      );
-
-      if (!registeredDeliveryPersons || registeredDeliveryPersons.length === 0) {
-        alert('No delivery persons are registered with your restaurant. Please wait for delivery persons to register.');
-        return;
-      }
-
-      // Try to assign a delivery person
       const response = await fetchFromService(
         'delivery',
         '/delivery/assign-delivery',
         'POST',
         {
           restaurantId,
-          orderId: orderId.toString()
+          orderId: orderId.toString(),
+          deliveryPersonId: "22" 
         }
       );
 
-      if (response && response.includes('Assigned to DeliveryPerson ID:')) {
+      if (typeof response === 'string' && response.startsWith('Assigned to DeliveryPerson ID:')) {
         alert('Delivery person assigned successfully!');
       } else {
-        alert('No available delivery person found at the moment. Please try again later.');
+        alert('Failed to assign delivery person. Please try again later.');
       }
     } catch (err) {
       console.error('Error assigning delivery:', err);

@@ -47,20 +47,37 @@ const MealCard: React.FC<MealCardProps> = ({ restaurantId, restaurantName, resta
     fetchMenuItems();
   }, [restaurantId]);
 
-  const handleCheckout = (item: MenuItem) => {
-    const params = new URLSearchParams({
-      image: item.imageUrl || '',
-      name: item.name,
-      description: item.description,
-      price: item.price.toString(),
-      restaurant: restaurantName || '',
-      rating: restaurantRating?.toString() || '',
-      distance: distance || '',
-      deliveryTime: deliveryTime || '',
-      itemId: item.id
-    });
-    
-    router.push(`/checkout?${params.toString()}`);
+  const handleCheckout = async (item: MenuItem) => {
+    try {
+      await fetchFromService(
+        'order',
+        '/api/cart',
+        'POST',
+        {
+          productId: item.id,
+          productName: item.name,
+          price: item.price,
+          restaurantId
+        }
+      );
+
+      const params = new URLSearchParams({
+        image: item.imageUrl || '',
+        name: item.name,
+        description: item.description,
+        price: item.price.toString(),
+        restaurant: restaurantName || '',
+        rating: restaurantRating?.toString() || '',
+        distance: distance || '',
+        deliveryTime: deliveryTime || '',
+        itemId: item.id
+      });
+      
+      router.push(`/checkout?${params.toString()}`);
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      alert('Failed to add to cart');
+    }
   };
 
   if (loading) {
@@ -108,7 +125,7 @@ const MealCard: React.FC<MealCardProps> = ({ restaurantId, restaurantName, resta
               onClick={() => handleCheckout(item)}
             >
               <ShoppingCart size={18} />
-              Checkout
+              Add to Cart
             </button>
           </div>
         </div>

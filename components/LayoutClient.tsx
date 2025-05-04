@@ -8,7 +8,7 @@ import { Footer } from "./Footer";
 export default function LayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const hideLayout = pathname.startsWith("/dashboard/") || pathname.startsWith("/restaurant/") || pathname.startsWith("/login") || pathname.startsWith("/register/") || pathname.startsWith("/deliverer/");
+  const hideLayout = pathname.startsWith("/dashboard/") || pathname.startsWith("/restaurant/") || pathname.startsWith("/login") || pathname.startsWith("/register/") || pathname.startsWith("/deliverer/") || pathname.startsWith("/delivery/") || pathname.startsWith("/admin");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
