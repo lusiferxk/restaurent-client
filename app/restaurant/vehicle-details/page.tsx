@@ -6,20 +6,20 @@ import DashboardLayout from '../../adminres/DashboardLayout';
 
 
 const vehicleData = {
-  username: "delivery4",
-  email: "deliveryperson4@example.com",
+  username: "delivery12",
+  email: "delivery12@example.com",
   firstName: "Kamal",
   lastName: "Perera",
   address: "123 Main Street",
-  city: "Colombo",
+  city: "gampaha",
   postalCode: 10100,
   phoneNumber: "0771234567",
   vehicleNumber: "AB-1234",
   vehicleType: "Bike",
-  vehicleImg: "http://example.com/images/vehicle.jpg",
-  profileImg: "http://example.com/images/profile.jpg",
+  vehicleImg: "https://carsguide.ikman.lk/wp-content/uploads/2023/08/bmw-i8-car-scaled-e1691999629250.jpg",
+  profileImg: "https://thaka.bing.com/th/id/OIP.b75Reg9pIsVmt5gN6Xis6QHaJ4?w=208&h=277&c=7&r=0&o=5&dpr=1.3&pid=1.7",
   nic: "901234567V",
-  vehicleDocuments: "http://example.com/docs/vehicle-docs.pdf",
+  vehicleDocuments: "https://carsguide.ikman.lk/wp-content/uploads/2023/08/bmw-i8-car-scaled-e1691999629250.jpg",
   licenseNumber: "B1234567"
 }
 
