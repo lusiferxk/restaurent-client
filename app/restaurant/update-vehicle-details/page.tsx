@@ -1,163 +1,316 @@
-"use client";
+"use client"
 
-import React, { useState, useRef } from "react";
-import { Save, X, ChevronLeft, Camera } from 'lucide-react';
-import DashboardLayout from '../../adminres/DashboardLayout';
+import type React from "react"
 
-const initialVehicle = {
-  vehicleNumber: "ABC-1234",
-  vehicleImg: "https://example.com/images/vehicle1.jpg",
-  vehicleDocuments: "https://example.com/docs/vehicle1_docs.pdf",
-  licenseNumber: "B1234567",
-};
+import { useState, useEffect } from "react"
+import { BadgeCheck, Loader2, AlertCircle, Save, Upload } from "lucide-react"
+import DashboardLayout from "../../adminres/DashboardLayout"
+import { fetchFromService } from "@/utils/fetchFromService"
 
-export default function UpdateVehicleDetails() {
-  const [vehicle, setVehicle] = useState(initialVehicle);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
-  const fileInputRef = useRef<HTMLInputElement>(null);
+// Interface for vehicle response from API
+interface VehicleResponse {
+  id: number
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  address: string
+  city: string
+  postalCode: number
+  phoneNumber: string
+  vehicleNumber: string
+  vehicleType: string
+  vehicleImg: string
+  profileImg: string
+  nic: string
+  vehicleDocuments: string
+  licenseNumber: string
+  isVerified?: boolean
+}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setVehicle({ ...vehicle, [name]: value });
-  };
+// Interface for vehicle update request
+interface VehicleUpdateRequest {
+  vehicleNumber: string
+  vehicleType: string
+  vehicleImg: string
+  vehicleDocuments: string
+  licenseNumber: string
+}
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setVehicle((prev) => ({ ...prev, vehicleImg: typeof reader.result === 'string' ? reader.result : '' }));
-      };
-      reader.readAsDataURL(file);
+const UpdateVehicle = () => {
+  const [vehicleData, setVehicleData] = useState<VehicleResponse | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [updating, setUpdating] = useState(false)
+  const [updateSuccess, setUpdateSuccess] = useState(false)
+
+  // Form state
+  const [formData, setFormData] = useState<VehicleUpdateRequest>({
+    vehicleNumber: "",
+    vehicleType: "",
+    vehicleImg: "",
+    vehicleDocuments: "",
+    licenseNumber: "",
+  })
+
+  useEffect(() => {
+    const fetchVehicleDetails = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        // Get user from localStorage
+        const user = JSON.parse(localStorage.getItem("user") || "{}")
+
+        if (!user?.id) {
+          throw new Error("User not found. Please log in again.")
+        }
+
+        // Fetch vehicle details from API
+        const response = await fetchFromService("user", `/api/user/vehicle/${user.id}`, "GET")
+
+        // Set vehicle data from API response
+        setVehicleData(response)
+
+        // Initialize form data with current values
+        setFormData({
+          vehicleNumber: response.vehicleNumber || "",
+          vehicleType: response.vehicleType || "",
+          vehicleImg: response.vehicleImg || "",
+          vehicleDocuments: response.vehicleDocuments || "",
+          licenseNumber: response.licenseNumber || "",
+        })
+      } catch (err) {
+        console.error("Error fetching vehicle details:", err)
+        setError("Failed to load vehicle details.")
+      } finally {
+        setLoading(false)
+      }
     }
-  };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (e) e.preventDefault();
-    setIsSubmitting(true);
+    fetchVehicleDetails()
+  }, [])
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setMessage({ type: 'success', text: 'Vehicle details updated successfully!' });
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to update vehicle details. Please try again.' });
-    } finally {
-      setIsSubmitting(false);
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-    }
-  };
+      setUpdating(true)
+      setUpdateSuccess(false)
 
-  const handleCancel = () => {
-    setVehicle(initialVehicle);
-  };
+      // Get user from localStorage
+      const user = JSON.parse(localStorage.getItem("user") || "{}")
+
+      if (!user?.id) {
+        throw new Error("User not found. Please log in again.")
+      }
+
+      // Update vehicle details via API
+      const response = await fetchFromService("user", "/api/user/update-vehicle", "PUT", formData)
+
+      // Update local state with response
+      setVehicleData(response)
+      setUpdateSuccess(true)
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setUpdateSuccess(false)
+      }, 3000)
+    } catch (err) {
+      console.error("Error updating vehicle details:", err)
+      setError("Failed to update vehicle details. Please try again.")
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="p-8 min-h-screen flex flex-col items-center">
+          <h1 className="text-3xl font-extrabold text-purple-800 mb-8 text-center">Update Vehicle Details</h1>
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row w-full max-w-5xl p-10 items-center justify-center">
+            <Loader2 className="w-12 h-12 text-purple-600 animate-spin" />
+            <p className="mt-4 text-gray-600">Loading vehicle details...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
+  }
 
   return (
     <DashboardLayout>
-      <div className="p-8 max-w-4xl mx-auto">
-        <div className="mb-6 flex items-center">
-          <a href="/restaurant/vehicle-details" className="flex items-center text-purple-600 hover:text-purple-800">
-            <ChevronLeft size={20} />
-            <span className="ml-1">Back to Vehicle Details</span>
-          </a>
-        </div>
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h1 className="text-2xl font-bold text-purple-800 mb-6 pb-4 border-b border-gray-200">
-            Update Vehicle Details
-          </h1>
-          {message.text && (
-            <div className={`mb-6 p-4 rounded-md ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{message.text}</div>
-          )}
-          <form onSubmit={handleSubmit}>
+      <div className="p-8 min-h-screen flex flex-col items-center">
+        <h1 className="text-3xl font-extrabold text-purple-800 mb-8 text-center">Update Vehicle Details</h1>
+
+        {error && (
+          <div className="w-full max-w-5xl mb-4 bg-red-50 border-l-4 border-red-400 p-4 rounded">
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+              <p className="text-red-700">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {updateSuccess && (
+          <div className="w-full max-w-5xl mb-4 bg-green-50 border-l-4 border-green-400 p-4 rounded">
+            <div className="flex items-center">
+              <BadgeCheck className="w-5 h-5 text-green-500 mr-2" />
+              <p className="text-green-700">Vehicle details updated successfully!</p>
+            </div>
+          </div>
+        )}
+
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-5xl">
+          <form onSubmit={handleSubmit} className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="col-span-2">
-                <div
-                  className="flex justify-center items-center border-2 border-dashed border-gray-300 rounded-lg h-64 mb-4 relative cursor-pointer hover:border-purple-400 transition-colors"
-                  onClick={() => fileInputRef.current && fileInputRef.current.click()}
-                >
-                  {vehicle.vehicleImg ? (
-                    <img src={vehicle.vehicleImg} alt="Vehicle" className="object-contain h-full max-h-60" />
-                  ) : (
-                    <div className="text-center">
-                      <Camera size={48} className="mx-auto text-gray-400 mb-2" />
-                      <p className="text-gray-500">Click to upload vehicle image</p>
-                      <p className="text-sm text-gray-400 mt-1">JPG, PNG or GIF (max. 2MB)</p>
-                    </div>
-                  )}
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="vehicleNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                    Vehicle Number
+                  </label>
                   <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    onChange={handleImageUpload}
+                    type="text"
+                    id="vehicleNumber"
+                    name="vehicleNumber"
+                    value={formData.vehicleNumber}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="vehicleType" className="block text-sm font-medium text-gray-700 mb-1">
+                    Vehicle Type
+                  </label>
+                  <select
+                    id="vehicleType"
+                    name="vehicleType"
+                    value={formData.vehicleType}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="">Select Vehicle Type</option>
+                    <option value="Bike">Bike</option>
+                    <option value="Car">Car</option>
+                    <option value="Van">Van</option>
+                    <option value="Truck">Truck</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                    License Number
+                  </label>
+                  <input
+                    type="text"
+                    id="licenseNumber"
+                    name="licenseNumber"
+                    value={formData.licenseNumber}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
                   />
                 </div>
               </div>
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-gray-700 font-medium mb-2">Vehicle Number*</label>
-                <input
-                  type="text"
-                  name="vehicleNumber"
-                  value={vehicle.vehicleNumber}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  required
-                />
+
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="vehicleImg" className="block text-sm font-medium text-gray-700 mb-1">
+                    Vehicle Image URL
+                  </label>
+                  <div className="flex">
+                    <input
+                      type="text"
+                      id="vehicleImg"
+                      name="vehicleImg"
+                      value={formData.vehicleImg}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="https://example.com/image.jpg"
+                    />
+                    <button
+                      type="button"
+                      className="bg-gray-100 px-4 py-2 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200"
+                      title="Upload Image"
+                    >
+                      <Upload className="w-5 h-5 text-gray-600" />
+                    </button>
+                  </div>
+                  {formData.vehicleImg && (
+                    <div className="mt-2">
+                      <img
+                        src={formData.vehicleImg || "/placeholder.svg"}
+                        alt="Vehicle Preview"
+                        className="h-20 object-cover rounded-md"
+                        onError={(e) => {
+                          e.currentTarget.src = "https://via.placeholder.com/300x200?text=Invalid+URL"
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="vehicleDocuments" className="block text-sm font-medium text-gray-700 mb-1">
+                    Vehicle Documents URL
+                  </label>
+                  <div className="flex">
+                    <input
+                      type="text"
+                      id="vehicleDocuments"
+                      name="vehicleDocuments"
+                      value={formData.vehicleDocuments}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="https://example.com/document.pdf"
+                    />
+                    <button
+                      type="button"
+                      className="bg-gray-100 px-4 py-2 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200"
+                      title="Upload Document"
+                    >
+                      <Upload className="w-5 h-5 text-gray-600" />
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-gray-700 font-medium mb-2">License Number*</label>
-                <input
-                  type="text"
-                  name="licenseNumber"
-                  value={vehicle.licenseNumber}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  required
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="block text-gray-700 font-medium mb-2">Vehicle Documents URL*</label>
-                <input
-                  type="text"
-                  name="vehicleDocuments"
-                  value={vehicle.vehicleDocuments}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  required
-                />
-                {vehicle.vehicleDocuments && (
-                  <a
-                    href={vehicle.vehicleDocuments}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block mt-2 px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 text-xs font-medium shadow"
-                  >
-                    View Vehicle Documents
-                  </a>
+            </div>
+
+            <div className="mt-8 flex justify-end">
+              <button
+                type="submit"
+                disabled={updating}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-base font-semibold shadow flex items-center disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {updating ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-5 h-5 mr-2" />
+                    Save Changes
+                  </>
                 )}
-              </div>
-              <div className="col-span-2 flex justify-end space-x-4 pt-4 border-t border-gray-200">
-                <button
-                  type="button"
-                  className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center"
-                  onClick={handleCancel}
-                >
-                  <X size={18} className="mr-2" />
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={`px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 flex items-center ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
-                >
-                  <Save size={18} className="mr-2" />
-                  {isSubmitting ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
+              </button>
             </div>
           </form>
         </div>
       </div>
     </DashboardLayout>
-  );
-} 
+  )
+}
+
+export default UpdateVehicle
