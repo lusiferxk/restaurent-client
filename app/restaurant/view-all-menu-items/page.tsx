@@ -54,6 +54,7 @@ const formatPrice = (price: number | string): string => {
 
 // View Details Modal Component
 const ViewDetailsModal = ({ item, onClose, onEdit }: ViewDetailsModalProps) => {
+
   if (!item) return null;
   
   return (
