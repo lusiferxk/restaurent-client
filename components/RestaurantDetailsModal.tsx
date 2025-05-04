@@ -130,8 +130,6 @@ export function RestaurantDetailsModal({
                 {filteredItems.map((item, idx) => (
                   <MealCard
                     key={item.id}
-                    productId={String(item.id)}
-                    restaurantId={String(restaurant.id)}
                     image={item.image || fallbackImage}
                     name={item.name}
                     description={item.description}
