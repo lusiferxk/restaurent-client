@@ -145,7 +145,7 @@ export default function UserRegistration() {
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-purple-600 to-indigo-700 text-white px-12 flex-col justify-center relative overflow-hidden"
+          className="hidden lg:flex flex-1 bg-gradient-to-br from-purple-600 to-indigo-700 text-white px-12 flex-col justify-center relative overflow-hidden"
         >
           <div className="absolute top-0 left-0 w-full h-full opacity-10">
             <div className="absolute top-20 left-20 w-40 h-40 rounded-full bg-white"></div>
@@ -197,18 +197,18 @@ export default function UserRegistration() {
               className="bg-white shadow-xl rounded-2xl overflow-hidden"
             >
               <div className="p-8">
-                <div className="flex justify-center mb-6">
+                {/* <div className="flex justify-center mb-6">
                   <div className="p-3 rounded-full bg-gradient-to-r from-purple-100 to-indigo-100 shadow-md">
                     <UserIcon size={32} className="text-purple-600" />
                   </div>
-                </div>
+                </div> */}
 
-                <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-2">
+                {/* <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-2">
                   Create Your Account
                 </h2>
                 <p className="text-center text-gray-500 mb-8">
                   Join us to start your culinary journey
-                </p>
+                </p> */}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
