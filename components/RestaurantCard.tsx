@@ -24,11 +24,15 @@ export interface Restaurant {
   categories: string[],
   menu: MenuItem[]
 }
+
 interface RestaurantCardProps {
   restaurant: Restaurant
 }
+
+
 export function RestaurantCard({ restaurant }: RestaurantCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  
   return (
     <>
       <div

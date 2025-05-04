@@ -15,6 +15,7 @@ interface MenuItem {
   available: boolean;
   category?: string;
   image?: string;
+  restaurantId?: string;
 }
 
 interface RestaurantDetailsModalProps {
@@ -126,16 +127,13 @@ export function RestaurantDetailsModal({
               
              
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 overflow-y-auto max-h-[calc(90vh-300px)]">
-                {filteredItems.map((item, idx) => (
+              <div className="">
                   <MealCard
-                    key={item.id}
-                    image={item.image || fallbackImage}
-                    name={item.name}
-                    description={item.description}
-                    price={item.price}
+                    restaurantId={String(restaurant.id)}
+                    restaurantName={restaurant.name}
+                    restaurantRating={restaurant.rating}
+                    deliveryTime={restaurant.deliveryTime}
                   />
-                ))}
               </div>
             </div>
           </motion.div>

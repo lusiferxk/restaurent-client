@@ -31,6 +31,7 @@ interface CustomJwtPayload {
   [key: string]: any;
 }
 
+
 export default function NotificationModel() {
   const [token] = useLocalStorage<string | null>("authToken", null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -45,6 +46,8 @@ export default function NotificationModel() {
   const notificationRef = useRef<HTMLDivElement>(null);
   const [currentUserId, setUserId] = useState<number | null>(null);
 
+
+  // Decode JWT token to get userId
   useEffect(() => {
     if (token) {
       try {
@@ -116,7 +119,7 @@ export default function NotificationModel() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8080/notifications', {
+      const response = await fetch('https://notification-service-zu6u.onrender.com/notifications', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -137,7 +140,7 @@ export default function NotificationModel() {
     if (!token || !currentUserId) return;
   
     const client = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
+      webSocketFactory: () => new SockJS('https://notification-service-zu6u.onrender.com/ws'),
       connectHeaders: {
         Authorization: `Bearer ${token}`,
         'heart-beat': '10000,10000'
@@ -182,7 +185,7 @@ export default function NotificationModel() {
   // Mark notification as read
   const markAsRead = async (id: number) => {
     try {
-      await fetch(`http://localhost:8080/notifications/${id}/read`, {
+      await fetch(`https://notification-service-zu6u.onrender.com/notifications/${id}/read`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -208,7 +211,7 @@ export default function NotificationModel() {
   // Mark all notifications as read
   const markAllAsRead = async () => {
     try {
-      await fetch(`http://localhost:8080/notifications/read-all`, {
+      await fetch(`https://notification-service-zu6u.onrender.com/notifications/read-all`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -224,7 +227,7 @@ export default function NotificationModel() {
   // Delete notification
   const deleteNotification = async (id: number) => {
     try {
-      await fetch(`http://localhost:8080/notifications/${id}`, {
+      await fetch(`https://notification-service-zu6u.onrender.com/notifications/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -538,7 +541,7 @@ export default function NotificationModel() {
                     Mark all as read
                   </button>
                 </span>
-                <button 
+                {/* <button 
                   onClick={(e) => {
                     e.stopPropagation();
                     sendTestNotification();
@@ -546,7 +549,7 @@ export default function NotificationModel() {
                   className="text-sm text-green-600 hover:text-green-700 px-3 py-1.5 rounded-full hover:bg-green-100 transition-colors"
                 >
                   Test WS
-                </button>
+                </button> */}
               </div>
             </div>
           </motion.div>

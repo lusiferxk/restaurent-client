@@ -11,56 +11,108 @@ const categories = [
   { id: 6, name: "Healthy", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1780&q=80" },
 ];
 
-// Repeat enough times to fill the line
 const repeatedCategories = Array(5).fill(categories).flat();
 
 export function Categories() {
   return (
-    <div className="py-13 mt-5 bg-white">
-      <div className="container mx-auto px-14">
-        <h2 className="text-2xl md:text-3xl text-purple-950 font-bold mb-6">
-          What&apos;s on your mind?
-        </h2>
-        <div className="overflow-hidden">
-          <div className="flex animate-slide">
-            {repeatedCategories.map((category, index) => (
+    <section className="py-16 bg-gradient-to-b from-gray-50 to-white">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 mb-3">
+            Craving something delicious?
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Explore our diverse food categories to satisfy your appetite
+          </p>
+        </div>
+
+        <div className="relative">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 px-4">
+            {categories.map((category) => (
               <div
-                key={index}
-                className="group cursor-pointer flex flex-col items-center mx-4"
+                key={category.id}
+                className="group relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 h-64"
               >
-                <div
-                  className="relative rounded-full overflow-hidden mb-2"
-                  style={{ width: "130px", height: "130px" }}
-                >
-                  <Image
-                    src={category.image}
-                    alt={category.name}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-opacity-20 group-hover:bg-opacity-30 transition-opacity z-10"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
+                <Image
+                  src={category.image}
+                  alt={category.name}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                />
+                <div className="absolute bottom-0 left-0 p-5 z-20 w-full">
+                  <h3 className="text-xl font-bold text-white mb-1">
+                    {category.name}
+                  </h3>
+                  <button className="text-sm font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center">
+                    Explore
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 ml-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
                 </div>
-                <p className="text-center font-medium mt-2">{category.name}</p>
               </div>
             ))}
           </div>
+
+          {/* Fixed Marquee Section */}
+          <div className="mt-12">
+            <div className="relative overflow-x-hidden py-4">
+              <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-gray-50 to-transparent z-20 pointer-events-none" />
+              <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-gray-50 to-transparent z-20 pointer-events-none" />
+              
+              <div className="flex animate-marquee whitespace-nowrap items-center">
+                {repeatedCategories.map((category, index) => (
+                  <div
+                    key={index}
+                    className="inline-flex items-center mx-4 bg-white rounded-full px-6 py-3 shadow-sm border border-gray-100 h-14"
+                  >
+                    <div className="w-8 h-8 rounded-full overflow-hidden mr-3 relative">
+                      <Image
+                        src={category.image}
+                        alt={category.name}
+                        fill
+                        className="object-cover"
+                        sizes="32px"
+                      />
+                    </div>
+                    <span className="font-medium text-gray-800">
+                      {category.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
       <style jsx>{`
-        @keyframes slide {
+        @keyframes marquee {
           0% {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-20%);
+            transform: translateX(-50%);
           }
         }
-        .animate-slide {
-          display: flex;
-          width: 500%; /* Large enough for seamless loop */
-          animation: slide 40s linear infinite;
+        .animate-marquee {
+          display: inline-flex;
+          animation: marquee 25s linear infinite;
         }
       `}</style>
-    </div>
+    </section>
   );
-} 
+}
