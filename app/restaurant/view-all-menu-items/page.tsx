@@ -78,7 +78,7 @@ const ViewDetailsModal = ({ item, onClose, onEdit }: ViewDetailsModalProps) => {
             <div className="w-full md:w-1/3">
               <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                 <img 
-                  src={item.imageUrl || '/api/placeholder/300/300'} 
+                  src={item.imageUrl || 'https://plus.unsplash.com/premium_photo-1664478291780-0c67f5fb15e6?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'} 
                   alt={item.name}
                   className="w-full h-full object-cover"
                 />
@@ -154,7 +154,7 @@ const EditItemModal = ({ item, onClose, onSave }: EditItemModalProps) => {
     price: 0,
     description: '',
     available: true,
-    imageUrl: '/api/placeholder/300/300'
+    imageUrl: 'https://plus.unsplash.com/premium_photo-1664478291780-0c67f5fb15e6?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -515,7 +515,7 @@ const ViewAllMenuItems = () => {
               <div key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="relative">
                   <img
-                    src={item.imageUrl || '/api/placeholder/300/300'}
+                    src={item.imageUrl || 'https://plus.unsplash.com/premium_photo-1664478291780-0c67f5fb15e6?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
                     alt={item.name}
                     className="w-full h-48 object-cover"
                   />
